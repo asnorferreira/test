@@ -1,0 +1,60 @@
+<o-loading [isLoading]="isLoading" />
+
+<div class="chat-main">
+    @if (messages && messages.length > 0) {
+    <div class="clear-button-div">
+        <button mat-icon-button class="clear-button" (click)="clear()" pTooltip="Limpar chat"
+            [disabled]="isSending || isLoading">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+    }
+
+    <div class="messages-wrapper">
+        @if (messages.length > 0) {
+        <div class="messages">
+            @for (message of messages; track message.content) {
+            @if (message.userMessage) {
+            <div class="user-message-div">
+                <p class=" user-message">{{message.content}}</p>
+            </div>
+            } @else {
+            <div class="assistant-message-div">
+                <markdown class="assistant-message">{{message.content}}</markdown>
+            </div>
+            }
+            }
+        </div>
+        @if (isSending) {
+        <p class="thinking">Pensando...</p>
+        }
+        } @else {
+        <div class="empty-chat">
+            <h1>Este é seu chat com a IA da Orbix.</h1>
+            <h3>Essa IA sabe todo o conteúdo desta turma e pode te ajudar a aprender da maneira mais eficiente e
+                confiável!</h3>
+        </div>
+        }
+    </div>
+
+    @if (learningPaths.length > 0 && showLearningPaths) {
+    <div class="learning-paths">
+        @for (learningPath of learningPaths; track learningPath.id) {
+        <div class="learning-path">
+            <p>{{learningPath.name}}</p>
+            <button (click)="removeLearningPath.emit(learningPath)"
+                [disabled]="isSending"><mat-icon>close</mat-icon></button>
+        </div>
+        }
+    </div>
+    }
+
+    <div class="chat-input">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <input matInput [(ngModel)]="input" placeholder="Escrever..." [disabled]="isSending" />
+        </mat-form-field>
+        <button mat-icon-button (click)="sendMessage()" [disabled]="isInputEmpty || isSending" type="submit">
+            <mat-icon>{{isSending ? 'stop' : 'send'}}</mat-icon>
+        </button>
+    </div>
+</div>

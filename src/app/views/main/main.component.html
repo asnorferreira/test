@@ -1,0 +1,19 @@
+<content class="layout-content">
+
+	<!-- Header -->
+	<o-header (sidebar)="drawer.toggle()" />
+
+	<mat-drawer-container class="layout-wrapper">
+
+		<!-- Sidebar -->
+		<mat-drawer #drawer mode="side" opened class="layout-drawer">
+			<o-sidebar />
+		</mat-drawer>
+
+		<!-- Main Content -->
+		<mat-drawer-content class="layout-main">
+			<router-outlet />
+		</mat-drawer-content>
+
+	</mat-drawer-container>
+</content>

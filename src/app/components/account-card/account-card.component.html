@@ -1,0 +1,32 @@
+<div class="account-card-div">
+	<div class="info-div">
+
+		@if (institution?.name) {
+		<p>{{institution?.name}}</p>
+		}
+
+		@if (email) {
+		<p>{{email}}</p>
+		}
+
+		@if (idInInstitution) {
+		<p>{{idInInstitution}}</p>
+		}
+
+		@if (institutionRoleText()) {
+		<p>{{institutionRoleText()}}</p>
+		}
+
+		@if (isLoading) {
+		<o-loading [isLoading]="isLoading" [local]="true" size="30px" />
+		}
+
+		@if (amountOfClassrooms) {
+		<p>{{amountOfClassrooms}} turmas</p>
+		}
+	</div>
+
+	@if (institution) {
+	<img [src]="institutionLogoUrl" alt="Institution Logo">
+	}
+</div>

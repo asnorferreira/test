@@ -1,0 +1,61 @@
+<o-loading [isLoading]="isLoading" />
+
+<header>
+    <button mat-icon-button [routerLink]="['/i/' + this.ctx.institution?.id + '/c/' + this.ctx.classroom?.id]">
+        <mat-icon>arrow_back</mat-icon>
+    </button>
+    @if (ctx.isTeacher) {
+    <button mat-raised-button (click)="uploadDocument()">Adicionar documento</button>
+    }
+</header>
+
+<div class="content">
+    <div class="left-content">
+        @for (document of filteredDocuments; track document.id) {
+        <div>
+            <p>{{document.name}}</p>
+            <p>{{document.extension}}</p>
+            <o-syllabus-tags [syllabus]="document.syllabus || []" />
+            <button mat-icon-button (click)="downloadDocument(document.id, document.name)">
+                <mat-icon>download</mat-icon>
+            </button>
+            @if (ctx.isTeacher) {
+            <button mat-icon-button (click)="updateDocument(document)">
+                <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button (click)="deleteDocument(document.id)">
+                <mat-icon>delete</mat-icon>
+            </button>
+            @if (document.aiStatus === documentAIUploadStatusEnum.FAILED) {
+            <div>
+                <p>Ocorreu um erro ao alimentar a IA com este documento</p>
+                <button mat-button (click)="recallDocumentAI(document)">Tentar novamente</button>
+            </div>
+            } @else if (document.aiStatus === documentAIUploadStatusEnum.UPLOADING) {
+            <div>
+                <p>Adicionando documento à IA...</p>
+                <o-loading [isLoading]="true" [local]="true" size="30px" />
+            </div>
+            }
+            }
+        </div>
+        } @empty {
+        <p>Nenhum documento encontrado</p>
+        }
+    </div>
+
+    <div class="right-content">
+
+        @if (documents.length > 0) {
+        <div class="search-div">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Pesquisar</mat-label>
+                <input matInput [(ngModel)]="filter" />
+            </mat-form-field>
+        </div>
+
+        <o-syllabus [syllabus]="ctx.classroom?.syllabus" mode="filter" (syllabusMarked)="markSyllabus($event)"
+            [presets]="ctx.classroom?.presets" />
+        }
+    </div>
+</div>

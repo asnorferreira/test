@@ -1,0 +1,14 @@
+:host {
+	display: flex;
+	height: calc(100vh - var(--header-height, 60px));
+	border-right: 1px solid #ddd;
+}
+
+.sidebar {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	justify-content: flex-start;
+	align-items: center;
+	width: 100%;
+}

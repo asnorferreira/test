@@ -1,0 +1,121 @@
+<o-loading [isLoading]="isLoading" />
+
+<!-- Header -->
+<header class="ius-header">
+    <button mat-icon-button [routerLink]="['/i/' + this.ctx.institution?.id + '/settings']">
+        <mat-icon>arrow_back</mat-icon>
+    </button>
+
+    <div>
+        <button mat-raised-button (click)="createUser()">
+            Criar usuários
+        </button>
+
+        <button mat-raised-button [disabled]="selectedUsers.length === 0" (click)="deleteSelectedUsers()">
+            Excluir usuários
+        </button>
+    </div>
+</header>
+
+<!-- Table -->
+<p-table [value]="accounts" size="small" dataKey="id" [lazy]="true" (onLazyLoad)="getAccounts($event)"
+    [loading]="isLoading" [(selection)]="selectedUsers" [first]="paginationFirst" [paginator]="true" [rows]="10"
+    [rowsPerPageOptions]="[5, 10, 20, 30]" [showCurrentPageReport]="true" [totalRecords]="totalRecords"
+    currentPageReportTemplate="Página {currentPage} de {totalPages}" paginatorPosition="both" [tableStyle]="tableStyle">
+
+    <ng-template #header>
+
+        <!-- Filters -->
+        <tr>
+            <th>
+            </th>
+            <th>
+                <p-columnFilter [showMenu]="false" type="text" field="idInInstitution"
+                    placeholder="Filtrar identificador" />
+            </th>
+            <th>
+                <p-columnFilter [showMenu]="false" type="text" field="email" placeholder="Filtrar email" />
+            </th>
+            <th>
+                <p-columnFilter [showMenu]="false" type="text" field="name" placeholder="Filtrar nome" />
+            </th>
+            <th>
+                <p-columnFilter field="role" matchMode="equals" [showMenu]="false">
+                    <ng-template #filter let-filter="filterCallback">
+                        <p-select [options]="roles" [(ngModel)]="rolesFilter" placeholder="Filtrar cargo"
+                            [showClear]="true" (onChange)="filter($event.value)" />
+                    </ng-template>
+                </p-columnFilter>
+            </th>
+            <th></th>
+            <th></th>
+        </tr>
+
+        <!-- Header -->
+        <tr>
+            <th><p-tableHeaderCheckbox /></th>
+            <th style="width:20%">Identificador</th>
+            <th style="width:20%">Email</th>
+            <th style="width:20%">Nome</th>
+            <th style="width:15%">Cargo</th>
+            <th style="width:15%">Senha</th>
+            <th style="width:5%">Perfil</th>
+        </tr>
+
+    </ng-template>
+    <ng-template #body let-account let-editing="editing">
+
+        <!-- Body -->
+        <tr>
+            <td> <p-tableCheckbox [value]="account" /> </td>
+            <td [pEditableColumn]="account.idInInstitution" pEditableColumnField="idInInstitution">
+                <p-cellEditor>
+                    <ng-template #input>
+                        <input type="text" pInputText [(ngModel)]="account.idInInstitution"
+                            (change)="updateAccount(account)" (keydown.enter)="updateAccount(account)" />
+                    </ng-template>
+                    <ng-template #output>
+                        {{ account.idInInstitution }}
+                    </ng-template>
+                </p-cellEditor>
+            </td>
+            <td [pEditableColumn]="account.email" pEditableColumnField="email">
+                <p-cellEditor>
+                    <ng-template #input>
+                        <input type="email" pInputText [(ngModel)]="account.email" (change)="updateAccount(account)"
+                            (keydown.enter)="updateAccount(account)" />
+                    </ng-template>
+                    <ng-template #output>
+                        {{ account.email }}
+                    </ng-template>
+                </p-cellEditor>
+            </td>
+            <td>{{ account.user.name }}</td>
+            <td [pEditableColumn]="account.institutionRole" pEditableColumnField="institutionRole">
+                <p-cellEditor>
+                    <ng-template #input>
+                        <p-select [options]="roles" [(ngModel)]="account.institutionRole" [checkmark]="true"
+                            (onChange)="updateAccount(account)" />
+                    </ng-template>
+                    <ng-template #output>
+                        {{ account.institutionRole }}
+                    </ng-template>
+                </p-cellEditor>
+            </td>
+            <td>
+                <!-- TODO: This feature is temporarily disabled. Enable it when card #24 is done -->
+                <button mat-raised-button (click)="resetPassword(account)" style="height: 30px" [disabled]="true"
+                    style="pointer-events: auto"
+                    pTooltip="Esta funcionalidade está temporariamente desativada. Contate o administrador do sistema para redefinir a senha.">
+                    Redefinir senha
+                </button>
+            </td>
+            <td>
+                <button mat-icon-button [routerLink]="['/profile/' + account.user.id]">
+                    <img [src]="getProfilePictureUrl(account.user)" alt="Profile Picture" class="profile-picture" />
+                </button>
+            </td>
+        </tr>
+
+    </ng-template>
+</p-table>

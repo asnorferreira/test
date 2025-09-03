@@ -1,0 +1,72 @@
+<o-loading [isLoading]="isLoading" />
+
+<header class="learning-path-header">
+    <button mat-icon-button [routerLink]="['/i/' + this.ctx.institution?.id + '/c/' + this.ctx.classroom?.id]">
+        <mat-icon>arrow_back</mat-icon>
+    </button>
+
+    @if (ctx.learningPathStudy?.learningPath?.validated) {
+    <mat-icon pTooltip="Rota validada pelo professor">check</mat-icon>
+    }
+    @if (ctx.isTeacher) {
+    <button mat-raised-button (click)="validateLearningPath(!ctx.learningPathStudy?.learningPath?.validated)">
+        {{ctx.learningPathStudy?.learningPath?.validated ? "Invalidar rota" : "Validar rota"}}
+    </button>
+    }
+
+    <button mat-raised-button (click)="toggleMode()">
+        <mat-icon>{{mode === 'view' ? 'visibility' : 'school'}}</mat-icon>
+        Modo {{mode === 'view' ? 'Visualização' : 'Estudo'}}
+    </button>
+
+    @if (mine) {
+    <div>
+        <p-toggleswitch [(ngModel)]="ctx.learningPathStudy!.learningPath!.shared"
+            (ngModelChange)="updatedLearningPathSharing()" />
+        <span>Compartilhada</span>
+    </div>
+
+    <!-- TODO: Deleting learning paths is currently disabled (issue #22)-->
+    <button mat-icon-button (click)="deleteLearningPath()" [disabled]="true">
+        <mat-icon>delete</mat-icon>
+    </button>
+    }
+</header>
+
+<div class="learning-path-content">
+    @if (generationStatus === generationStatusEnum.GENERATING) {
+
+    <p>A rota de aprendizagem está sendo gerada</p>
+
+    } @else if (generationStatus === generationStatusEnum.GENERATED) {
+
+    <div class="left">
+        @switch (ctx.learningPathStudy!.learningPath!.type) {
+        @case (typeEnum.TEXT) {
+        <o-text-learning-path [learningPathStudy]="learningPathStudyAsText" [mode]="mode" />
+        }
+        @case (typeEnum.VIDEO) {
+        <o-video-learning-path [learningPathStudy]="learningPathStudyAsVideo" [mode]="mode" />
+        }
+        @case (typeEnum.AUDIO) {
+        <o-audio-learning-path [learningPathStudy]="learningPathStudyAsAudio" [mode]="mode" />
+        }
+        @case (typeEnum.FLASHCARD) {
+        <o-flash-card-learning-path [learningPathStudy]="learningPathStudyAsFlashCard" [mode]="mode" />
+        }
+        @case (typeEnum.QUESTION) {
+        <o-question-learning-path [learningPathStudy]="learningPathStudyAsQuestion" [mode]="mode" />
+        }
+        }
+    </div>
+
+    <div class="right">
+        <o-chat [learningPaths]="[ctx.learningPathStudy!.learningPath]" [showLearningPaths]="false" />
+    </div>
+
+    } @else if(generationStatus === generationStatusEnum.FAILED) {
+
+    <p>Ocorreu um erro na geração da rota de aprendizagem</p>
+
+    }
+</div>
