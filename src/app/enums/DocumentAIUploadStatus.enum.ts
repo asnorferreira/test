@@ -1,6 +1,0 @@
-export enum DocumentAIUploadStatusEnum {
-	UPLOADING = 'UPLOADING',
-	UPLOADED = 'UPLOADED',
-	NOT_UPLOADED = 'NOT_UPLOADED',
-	FAILED = 'FAILED',
-}

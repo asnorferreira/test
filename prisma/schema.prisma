@@ -1,0 +1,43 @@
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url  	    = env("DATABASE_URL")
+  // uncomment next line if you use Prisma <5.10
+  // directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+enum UserRole {
+ADMIN
+SUPERVISOR
+ATENDENTE
+}
+
+
+model Tenant {
+id String @id @default(uuid())
+slug String @unique
+name String
+users User[]
+createdAt DateTime @default(now())
+}
+
+
+model User {
+id String @id @default(uuid())
+tenantId String
+tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+email String
+displayName String?
+role UserRole @default(ATENDENTE)
+passwordHash String
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+
+
+@@unique([tenantId, email])
+}
