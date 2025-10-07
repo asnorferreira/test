@@ -1,0 +1,137 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  QA
+  SUPERVISOR
+  ATENDENTE
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  DISABLED
+}
+
+model Tenant {
+  id        String   @id @default(uuid())
+  slug      String   @unique
+  name      String
+  createdAt DateTime @default(now())
+
+  users     User[]
+  campaigns Campaign[]
+
+  @@map("tenants")
+}
+
+model User {
+  id           String     @id @default(uuid())
+  email        String
+  displayName  String?
+  role         UserRole   @default(ATENDENTE)
+  status       UserStatus @default(ACTIVE)
+  passwordHash String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  tenantId     String
+  tenant       Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, email])
+  @@map("users")
+}
+
+model Campaign {
+  id           String     @id @default(uuid())
+  name         String
+  createdAt    DateTime   @default(now())
+
+  tenantId     String
+  tenant       Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  policies      Policy[]
+  pillars       Pillar[]
+  rules         NegotiationRule[]
+  scripts       Script[]
+  conversations Conversation[]
+
+  @@unique([tenantId, name])
+  @@map("campaigns")
+}
+
+model Pillar {
+  id           String    @id @default(uuid())
+  name         String
+  description  String?
+  weight       Int       @default(1)
+  createdAt    DateTime  @default(now())
+  
+  campaignId   String
+  campaign     Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@map("pillars")
+}
+
+model NegotiationRule {
+  id                    String   @id @default(uuid())
+  maxDiscountPercentage Int?
+  maxInstallments       Int?
+  minDownPayment        Int?
+  forbiddenTerms        String[]
+  createdAt             DateTime @default(now())
+
+  campaignId  String
+  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@map("negotiation_rules")
+}
+
+model Script {
+  id          String   @id @default(uuid())
+  category    String   
+  body        String
+  version     Int      @default(1)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  campaignId  String
+  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@map("scripts")
+}
+
+model Policy {
+  id          String      @id @default(uuid())
+  version     Int
+  body        Json
+  isActive    Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  
+  campaignId  String
+  campaign    Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, version])
+  @@map("policies")
+}
+
+model Conversation {
+  id          String      @id @default(uuid())
+  externalId  String   
+  channel     String 
+  startedAt   DateTime    @default(now())
+  endedAt     DateTime?
+
+  campaignId  String
+  campaign    Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, externalId])
+  @@map("conversations")
+}

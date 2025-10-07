@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    "moduleResolution": "node",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -18,8 +19,14 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@/*": ["apps/api-gateway/src/*"]
+      "@/*": [
+        "apps/api-gateway/src/*"
+      ]
     },
-    "types": ["node", "jest"]
+    "types": [
+      "node",
+      "jest"
+    ],
+    "ignoreDeprecations": "6.0"
   }
 }

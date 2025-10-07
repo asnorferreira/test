@@ -18,6 +18,24 @@
       "compilerOptions": {
         "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
       }
+    },
+    "ingestor": {
+      "type": "application",
+      "root": "apps/ingestor",
+      "entryFile": "main",
+      "sourceRoot": "apps/ingestor/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/ingestor/tsconfig.app.json"
+      }
+    },
+    "policy-service": {
+      "type": "application",
+      "root": "apps/policy-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/policy-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/policy-service/tsconfig.app.json"
+      }
     }
   }
 }
