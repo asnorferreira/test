@@ -1,42 +1,93 @@
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url  	    = env("DATABASE_URL")
-  // uncomment next line if you use Prisma <5.10
-  // directUrl = env("DATABASE_URL_UNPOOLED")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 enum UserRole {
-ADMIN
-SUPERVISOR
-ATENDENTE
+  ADMIN
+  QA
+  SUPERVISOR
+  ATENDENTE
 }
 
+enum UserStatus {
+  PENDING
+  ACTIVE
+  DISABLED
+}
 
 model Tenant {
-id String @id @default(uuid())
-slug String @unique
-name String
-users User[]
-createdAt DateTime @default(now())
+  id        String   @id @default(uuid())
+  slug      String   @unique
+  name      String
+  createdAt DateTime @default(now())
+
+  users     User[]
+  campaigns Campaign[]
+
+  @@map("tenants")
 }
 
-
 model User {
-id String @id @default(uuid())
-tenantId String
-tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-email String
-displayName String?
-role UserRole @default(ATENDENTE)
-passwordHash String
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
+  id           String     @id @default(uuid())
+  email        String
+  displayName  String?
+  role         UserRole   @default(ATENDENTE)
+  status       UserStatus @default(ACTIVE)
+  passwordHash String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-@@unique([tenantId, email])
+  @@unique([tenantId, email])
+  @@map("users")
+}
+
+model Campaign {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  policies      Policy[]
+  conversations Conversation[]
+
+  @@unique([tenantId, name])
+  @@map("campaigns")
+}
+
+model Policy {
+  id          String   @id @default(uuid())
+  version     Int
+  body        Json
+  isActive    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  
+  campaignId  String
+  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, version])
+  @@map("policies")
+}
+
+model Conversation {
+  id          String   @id @default(uuid())
+  externalId  String   
+  channel     String 
+  startedAt   DateTime @default(now())
+  endedAt     DateTime?
+
+  campaignId  String
+  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, externalId])
+  @@map("conversations")
 }

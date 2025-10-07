@@ -1,21 +1,34 @@
-import { ValidationPipe } from '@nestjs/common'
-import { NestFactory } from '@nestjs/core'
-import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify'
-import { AppModule } from './app.module'
-import { PrismaService } from './modules/prisma/prisma.service'
+import { NestFactory } from '@nestjs/core';
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from '@nestjs/platform-fastify';
+import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
+import { PrismaService } from './shared/database/prisma.service';
 
-async function bootstrap(): Promise<void> {
+async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({ logger: true }),
-  )
+  );
 
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }))
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  });
 
-  const prisma = app.get(PrismaService)
-  await prisma.enableShutdownHooks(app)
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
 
-  await app.listen(3000, '0.0.0.0')
+  const prismaService = app.get(PrismaService);
+  await prismaService.enableShutdownHooks(app);
+
+  await app.listen(process.env.PORT || 3000, '0.0.0.0');
 }
-
-void bootstrap()
+bootstrap();

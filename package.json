@@ -1,28 +1,58 @@
 {
   "name": "intermedius-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Intermedius Coach - Real-time negotiation (WhatsApp + Voice)",
+  "private": true,
   "scripts": {
-    "start": "node apps/api-gateway/dist/main.js",
-    "start:dev": "ts-node --project apps/api-gateway/tsconfig.json apps/api-gateway/src/main.ts",
-    "build": "tsc -p apps/api-gateway/tsconfig.build.json",
-    "prisma:generate": "prisma generate"
+    "build": "nest build api-gateway",
+    "start": "node dist/apps/api-gateway/main",
+    "start:dev": "nest start --watch api-gateway",
+    "start:debug": "nest start --debug --watch api-gateway",
+    "lint": "eslint \"{apps,libs}/**/*.ts\" --fix",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:e2e": "jest --config ./apps/api-gateway/test/jest-e2e.json"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Ranmdom/Intermedius-BackEnd.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "nestjs",
+    "prisma",
+    "fastify",
+    "real-time"
+  ],
+  "author": "BX Consultoria",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Ranmdom/Intermedius-BackEnd/issues"
   },
   "homepage": "https://github.com/Ranmdom/Intermedius-BackEnd#readme",
   "devDependencies": {
+    "@nestjs/cli": "^11.0.10",
+    "@nestjs/schematics": "^11.0.7",
+    "@nestjs/testing": "^11.1.6",
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.6.0",
+    "@types/passport-jwt": "^4.0.1",
+    "@types/supertest": "^6.0.3",
+    "@typescript-eslint/eslint-plugin": "^8.45.0",
+    "@typescript-eslint/parser": "^8.45.0",
+    "eslint": "^9.36.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "jest": "^30.2.0",
+    "prettier": "^3.6.2",
     "prisma": "^6.16.3",
+    "supertest": "^7.1.4",
+    "ts-jest": "^29.4.4",
+    "ts-loader": "^9.5.4",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.2"
@@ -45,6 +75,7 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "rxjs": "^7.8.2"
   }
 }
