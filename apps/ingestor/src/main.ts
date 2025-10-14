@@ -20,7 +20,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  await app.listen(process.env.INGESTOR_PORT || 3001, '0.0.0.0');
+  // Escuta em IPv6/IPv4 (evita problemas de localhost - ::1)
+  await app.listen(process.env.INGESTOR_PORT || 3001, '::');
   console.log(`Ingestor service is running on: ${await app.getUrl()}/api/docs`);
 }
 bootstrap();

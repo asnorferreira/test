@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsDate, IsNotEmpty, IsObject, IsString, ValidateNested } from 'class-validator';
+import { IsDate, IsNotEmpty, IsObject, IsOptional, IsString, IsUrl, ValidateNested } from 'class-validator';
 
 class MetadataDto {
   @ApiProperty({
@@ -16,6 +16,16 @@ class MetadataDto {
   })
   @IsString()
   channel: string;
+
+  @ApiProperty({
+    required: false,
+    description: 'URL opcional para resposta assíncrona (callback/webhook de retorno).',
+    example: 'http://localhost:5678/webhook/test/abc123'
+  })
+  @IsOptional()
+  @IsString()
+  @IsUrl({ require_tld: false })
+  returnUrl?: string;
 }
 
 export class WebhookEventDto {
