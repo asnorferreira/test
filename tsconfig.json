@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2021",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@/api-gateway/*": ["apps/api-gateway/src/*"],
+      "@/ingestor/*": ["apps/ingestor/src/*"],
+      "@/policy-service/*": ["apps/policy-service/src/*"],
+      "@/prisma": ["libs/prisma/src"],
+      "@/ts-shared": ["libs/ts-shared/src"],
+      "@/state-machine": ["libs/state-machine/src"],
+      "@/rules-engine": ["libs/rules-engine/src"]
+    },
+    "types": [
+      "node",
+      "jest"
+    ],
+    "ignoreDeprecations": "6.0"
+  }
+}
