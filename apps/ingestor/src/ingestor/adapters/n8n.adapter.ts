@@ -10,7 +10,6 @@ export class N8nAdapter {
     const metadata: Metadata = {
       conversationId: (event.metadata && event.metadata.conversationId) || `${event.author}:${Date.now()}`,
       channel: (event.metadata && event.metadata.channel) || 'unknown',
-      // returnUrl is optional in DTO
       returnUrl: (event.metadata && (event.metadata as any).returnUrl) || undefined,
       raw: event,
     };

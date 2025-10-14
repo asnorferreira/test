@@ -36,7 +36,7 @@ export class UpdateUserDto {
 
   @ApiPropertyOptional({
     enum: UserRole,
-    description: 'Novo nível de acesso do usuário.',
+    description: 'Novo nível de acesso do usuário (ADMIN só pode ser alterado por outro ADMIN).',
   })
   @IsEnum(UserRole)
   @IsOptional()

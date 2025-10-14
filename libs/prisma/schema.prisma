@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  ignoreDeprecations   = "6.0"
 }
 
 datasource db {
@@ -19,6 +18,18 @@ enum UserStatus {
   PENDING
   ACTIVE
   DISABLED
+}
+
+enum SuggestionRating {
+  GOOD
+  BAD
+  NEUTRAL
+}
+
+enum SuggestionType {
+  SCRIPT
+  ACTION
+  ALERT
 }
 
 model Tenant {
@@ -69,15 +80,16 @@ model Campaign {
 }
 
 model Pillar {
-  id           String    @id @default(uuid())
-  name         String
-  description  String?
-  weight       Int       @default(1)
-  createdAt    DateTime  @default(now())
-  
-  campaignId   String
-  campaign     Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  weight      Int      @default(1)
+  createdAt   DateTime @default(now())
 
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  
+  tenantId   String
   @@map("pillars")
 }
 
@@ -89,9 +101,10 @@ model NegotiationRule {
   forbiddenTerms        String[]
   createdAt             DateTime @default(now())
 
-  campaignId  String
-  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 
+  tenantId   String
   @@map("negotiation_rules")
 }
 
@@ -103,22 +116,26 @@ model Script {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
 
-  campaignId  String
-  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignId String
+  campaign   Campaign @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
+  tenantId   String
   @@map("scripts")
 }
+
 
 model Policy {
   id          String      @id @default(uuid())
   version     Int
   body        Json
   isActive    Boolean     @default(false)
+  publishedBy String?
   createdAt   DateTime    @default(now())
   
   campaignId  String
   campaign    Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 
+  tenantId   String
   @@unique([campaignId, version])
   @@map("policies")
 }
@@ -130,9 +147,84 @@ model Conversation {
   startedAt   DateTime    @default(now())
   endedAt     DateTime?
 
-  campaignId  String
-  campaign    Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  
+  tenantId   String
+
+  events    ConversationEvent[]
+  analysis  ConversationAnalysis?
 
   @@unique([campaignId, externalId])
   @@map("conversations")
+}
+
+model ConversationEvent {
+  id             String   @id @default(uuid())
+  author         String 
+  text           String
+  timestamp      DateTime
+  
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  
+  suggestions AISuggestion[]
+
+  @@map("conversation_events")
+}
+
+model AISuggestion {
+  id        String   @id @default(uuid())
+  content   String 
+  type      SuggestionType 
+  createdAt DateTime @default(now())
+
+  eventId String
+  event   ConversationEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  feedback SuggestionFeedback?
+
+  @@map("ai_suggestions")
+}
+
+model SuggestionFeedback {
+  id        String           @id @default(uuid())
+  rating    SuggestionRating 
+  comment   String?
+  createdAt DateTime         @default(now())
+
+  suggestionId String       @unique 
+  suggestion   AISuggestion @relation(fields: [suggestionId], references: [id], onDelete: Cascade)
+
+  userId String 
+
+  @@map("suggestion_feedbacks")
+}
+
+model ConversationAnalysis {
+  id             String   @id @default(uuid())
+  finalScore     Float
+  adherenceRate  Float
+  metrics        Json
+  completedAt    DateTime @default(now())
+
+  conversationId String   @unique
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  tenantId   String
+  
+  @@map("conversation_analyses")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  userEmail String
+  action    String
+  targetId  String
+  tenantId  String
+  details   Json?
+  createdAt DateTime @default(now())
+
+  @@map("audit_logs")
 }

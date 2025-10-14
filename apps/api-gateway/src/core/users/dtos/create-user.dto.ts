@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsUUID,
   MinLength,
 } from 'class-validator';
 import { UserRole, UserStatus } from '@/ts-shared';
@@ -18,12 +19,12 @@ export class CreateUserDto {
   email!: string;
 
   @ApiProperty({
-    example: 'demo',
-    description: 'Slug do tenant ao qual o usuário pertence.',
+    example: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
+    description: 'ID do tenant ao qual o usuário pertence.',
   })
-  @IsString()
+  @IsUUID()
   @IsNotEmpty()
-  tenantSlug!: string;
+  tenantId!: string;
 
   @ApiProperty({
     example: 'password123',
