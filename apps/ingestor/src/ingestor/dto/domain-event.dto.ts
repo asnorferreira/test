@@ -5,6 +5,8 @@ export interface Metadata {
   channel: Channel;
   returnUrl?: string;
   raw?: unknown;
+  agentName?: string;
+  clientName?: string;
 }
 
 export interface DomainEvent {

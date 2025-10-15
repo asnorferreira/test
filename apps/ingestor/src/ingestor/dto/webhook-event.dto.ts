@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsDate, IsNotEmpty, IsObject, IsOptional, IsString, IsUrl, ValidateNested } from 'class-validator';
 
@@ -26,6 +26,22 @@ class MetadataDto {
   @IsString()
   @IsUrl({ require_tld: false })
   returnUrl?: string;
+
+  @ApiPropertyOptional({
+    description: 'Nome do atendente na conversa, se disponível.',
+    example: 'John Doe',
+  })
+  @IsOptional()
+  @IsString()
+  agentName?: string;
+
+  @ApiPropertyOptional({
+    description: 'Nome do cliente/contato na conversa.',
+    example: 'Alice Smith',
+  })
+  @IsOptional()
+  @IsString()
+  clientName?: string;b
 }
 
 export class WebhookEventDto {
