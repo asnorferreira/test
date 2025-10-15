@@ -15,7 +15,10 @@ export class RulesService {
       throw new NotFoundException(`Campanha com ID "${createRuleDto.campaignId}" não encontrada.`);
     }
     return this.prisma.negotiationRule.create({
-      data: createRuleDto,
+      data: {
+        ...createRuleDto,
+        tenantId: campaign.tenantId,
+      },
     });
   }
 

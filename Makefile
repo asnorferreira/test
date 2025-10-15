@@ -77,3 +77,23 @@ db-seed:
 db-studio:
 	@echo "🔍 Abrindo o Prisma Studio..."
 	$(NPM) run prisma:studio
+
+# --- Comandos do Docker ---
+docker-build:
+	@echo "🐳 Construindo as imagens Docker para produção..."
+	docker-compose build
+
+docker-up:
+	@echo "🚀 Subindo os containers com Docker Compose..."
+	docker-compose up -d
+
+docker-down:
+	@echo "🛑 Parando os containers..."
+	docker-compose down
+
+docker-logs:
+	@echo "📜 Exibindo logs dos containers..."
+	docker-compose logs -f
+
+docker-restart: docker-down docker-up
+	@echo "🔄 Reiniciando todos os containers..."

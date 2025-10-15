@@ -18,6 +18,7 @@ export class ScriptsService {
     return this.prisma.script.create({
       data: {
         ...createScriptDto,
+        tenantId: campaign.tenantId,
         version: 1,
       },
     });

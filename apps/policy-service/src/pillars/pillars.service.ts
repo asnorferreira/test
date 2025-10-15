@@ -16,9 +16,13 @@ export class PillarsService {
     }
 
     return this.prisma.pillar.create({
-      data: createPillarDto,
+      data: {
+        ...createPillarDto,
+        tenantId: campaign.tenantId,
+      },
     });
   }
+
 
   findAllByCampaign(campaignId: string) {
     return this.prisma.pillar.findMany({

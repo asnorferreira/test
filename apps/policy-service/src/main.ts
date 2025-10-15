@@ -7,12 +7,21 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { PrismaService } from 'libs/prisma/src/prisma.service';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as client from 'prom-client';
+
+const collectDefaultMetrics = client.collectDefaultMetrics;
+collectDefaultMetrics({ prefix: 'policy_service_' });
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({ logger: true }),
   );
+
+  app.getHttpAdapter().get('/metrics', async (req, res) => {
+    res.header('Content-Type', client.register.contentType);
+    res.send(await client.register.metrics());
+  });
 
   app.enableCors({
     origin: '*',

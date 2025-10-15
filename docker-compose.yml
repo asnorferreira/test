@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: intermedius_postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: intermedius
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d intermedius"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: apps/api-gateway/Dockerfile
+      args:
+        appName: api-gateway
+    container_name: intermedius_api_gateway
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/intermedius
+      - PORT=3000
+      - JWT_SECRET=your-super-secret
+
+  ingestor:
+    build:
+      context: .
+      dockerfile: apps/ingestor/Dockerfile
+      args:
+        appName: ingestor
+    container_name: intermedius_ingestor
+    depends_on:
+      - postgres
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/intermedius
+      - INGESTOR_PORT=3001
+      - N8N_WEBHOOK_URL=http://your-n8n-instance/webhook-url
+
+  policy-service:
+    build:
+      context: .
+      dockerfile: apps/policy-service/Dockerfile
+      args:
+        appName: policy-service
+    container_name: intermedius_policy_service
+    depends_on:
+      - postgres
+    ports:
+      - "3002:3002"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/intermedius
+      - POLICY_SERVICE_PORT=3002
+      - HELENA_API_URL=https://api.helena.com
+      - HELENA_API_KEY=your-helena-key
+
+volumes:
+  postgres_data:

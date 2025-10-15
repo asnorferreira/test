@@ -22,20 +22,16 @@ export class IngestorController {
   @ApiResponse({ status: 400, description: 'Payload do evento inválido.' })
   async handleWebhook(@Body(new ValidationPipe()) webhookEvent: WebhookEventDto) {
     try {
-      // 1) Normaliza o payload via Adapter
       const domainEvent = this.adapter.toDomain(webhookEvent);
 
-      // 2) Publica no EventBus para ser consumido por UseCase/Strategies
       eventBus.publish('conversation.event', domainEvent);
 
-      // 3) Mantém processamento anterior se necessário (suporta sync/async)
       await Promise.resolve(this.ingestorService.processEvent(webhookEvent));
 
       this.logger.log(`Evento recebido e publicado: ${domainEvent.id}`);
       return { status: 'event received' };
     } catch (err) {
       this.logger.error('Erro ao processar webhook', (err as Error).message);
-      // 202 para não travar retries do n8n; 
       return { status: 'error', message: (err as Error).message };
     }
   }
