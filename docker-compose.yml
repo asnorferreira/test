@@ -18,6 +18,19 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:6.2-alpine
+    container_name: intermedius_redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   api-gateway:
     build:
       context: .
@@ -28,12 +41,17 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - "3000:3000"
     environment:
       - DATABASE_URL=postgresql://user:password@postgres:5432/intermedius
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - PORT=3000
-      - JWT_SECRET=your-super-secret
+      - JWT_SECRET=${JWT_SECRET}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
 
   ingestor:
     build:
@@ -43,13 +61,18 @@ services:
         appName: ingestor
     container_name: intermedius_ingestor
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - "3001:3001"
     environment:
       - DATABASE_URL=postgresql://user:password@postgres:5432/intermedius
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - INGESTOR_PORT=3001
-      - N8N_WEBHOOK_URL=http://your-n8n-instance/webhook-url
+      - N8N_WEBHOOK_URL=${N8N_WEBHOOK_URL}
 
   policy-service:
     build:
@@ -59,14 +82,40 @@ services:
         appName: policy-service
     container_name: intermedius_policy_service
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - "3002:3002"
     environment:
       - DATABASE_URL=postgresql://user:password@postgres:5432/intermedius
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - POLICY_SERVICE_PORT=3002
-      - HELENA_API_URL=https://api.helena.com
-      - HELENA_API_KEY=your-helena-key
+      - HELENA_API_URL=${HELENA_API_URL}
+      - HELENA_API_KEY=${HELENA_API_KEY}
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+      args:
+        appName: worker
+    container_name: intermedius_worker
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/intermedius
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - N8N_WEBHOOK_URL=${N8N_WEBHOOK_URL}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
 
 volumes:
   postgres_data:
+  redis_data:
+

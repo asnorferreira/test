@@ -39,6 +39,13 @@ enum TrainingStatus {
   FAILED
 }
 
+enum CampaignStatus {
+DRAFT
+ACTIVE
+PAUSED
+ARCHIVED
+}
+
 model Tenant {
   id        String   @id @default(uuid())
   slug      String   @unique
@@ -47,6 +54,7 @@ model Tenant {
 
   users     User[]
   campaigns Campaign[]
+  connectors Connector[]
 
   @@map("tenants")
 }
@@ -71,6 +79,8 @@ model User {
 model Campaign {
   id           String     @id @default(uuid())
   name         String
+  channel      String?
+  status      CampaignStatus @default(DRAFT)
   createdAt    DateTime   @default(now())
 
   tenantId     String
@@ -164,6 +174,7 @@ model Conversation {
 
   events    ConversationEvent[]
   analysis  ConversationAnalysis?
+  snapshots CoachingSnapshot[]
 
   @@unique([campaignId, externalId])
   @@map("conversations")
@@ -182,6 +193,32 @@ model ConversationEvent {
 
   @@map("conversation_events")
 }
+
+model Connector {
+id             String   @id @default(uuid())
+provider       String
+name           String
+encryptedToken String   @db.Text
+createdAt      DateTime @default(now())
+
+tenantId       String
+tenant         Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+@@unique([tenantId, name])
+@@map("connectors")
+}
+
+model CoachingSnapshot { 
+id             String   @id @default(uuid())
+payload        Json
+createdAt      DateTime @default(now())
+
+conversationId String
+conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+@@map("coaching_snapshots")
+}
+
 
 model AISuggestion {
   id        String   @id @default(uuid())

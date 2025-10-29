@@ -6,6 +6,11 @@ import { PrismaModule } from '../../../libs/prisma/src/prisma.module';
 import { AuditModule } from './core/audit/audit.module';
 import { CoachModule } from './core/coach/coach.module';
 import { ReportsModule } from './core/reports/reports.module';
+import { CampaignsModule } from './core/campaigns/campaigns.module';
+import { ConnectorsModule } from './core/connectors/connectors.module';
+import { HealthController } from './core/health/health.controller';
+import { SnippetController } from './core/snippet/snippet.controller';
+import { CryptoModule } from 'libs/crypto/crypto.module';
 
 @Module({
   imports: [
@@ -19,6 +24,13 @@ import { ReportsModule } from './core/reports/reports.module';
     UsersModule,
     CoachModule,
     ReportsModule,
+    CampaignsModule,
+    ConnectorsModule,
+    CryptoModule,
   ],
+  controllers: [
+    HealthController,
+    SnippetController,
+  ]
 })
 export class AppModule {}
