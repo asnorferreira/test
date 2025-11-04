@@ -1,0 +1,292 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../apps/backend/node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TipoPessoa {
+  MORADOR
+  VISITANTE
+  FUNCIONARIO
+  PRESTADOR_SERVICO
+  ADMINISTRADOR
+}
+
+enum TipoCredencial {
+  FACIAL
+  BIOMETRIA
+  UHF
+  QR_CODE
+  CARTAO_PROXIMIDADE
+  SENHA
+}
+
+enum StatusCredencial {
+  ATIVA
+  INATIVA
+  BLOQUEADA
+  EXPIRADA
+  PENDENTE_CADASTRO
+}
+
+enum FabricanteDispositivo {
+  ZKTECO
+  PPA
+  IMECONTRON
+  CONTROL_ID
+  INTELBRAS
+  HIKVISION
+  IDFLEX
+  IDUHF
+  IDFACE
+  GENERICO_ONVIF
+  OUTRO
+}
+
+enum TipoPontoAcesso {
+  CATRACA_PEDESTRE
+  CANCELARIA_VEICULAR
+  PORTAO_GARAGEM
+  PORTA_SOCIAL
+  ELEVADOR
+}
+
+enum DirecaoPontoAcesso {
+  ENTRADA
+  SAIDA
+  AMBOS
+}
+
+enum AcaoEvento {
+  ENTRADA
+  SAIDA
+  ACIONAMENTO_MANUAL
+  TENTATIVA_INVALIDA
+  DISPOSITIVO_OFFLINE
+  ALARME_COACAO
+}
+
+enum ResultadoEvento {
+  PERMITIDO
+  NEGADO
+  NEGADO_ANTI_PASSBACK
+  NEGADO_CREDENCIAL_INVALIDA
+  NEGADO_CREDENCIAL_EXPIRADA
+  NEGADO_LISTA_BLOQUEIO
+  ERRO_COMUNICACAO
+  ERRO_DISPOSITIVO
+}
+
+enum PerfilOperador {
+  PORTARIA
+  SINDICO
+  ADMIN_TI
+  INTEGRADOR
+  ROOT
+}
+
+enum StatusLicenca {
+  ATIVA
+  EXPIRADA
+  PENDENTE
+  BLOQUEADA
+  MODO_GRACA
+}
+
+enum ModuloLicenca {
+  CORE_ACESSO
+  VISITANTES
+  FACIAL
+  UHF
+  RELATORIOS_AVANCADOS
+  EDGE_OFFLINE
+}
+
+enum StatusDispositivo {
+  ONLINE
+  OFFLINE
+  EM_MANUTENCAO
+  COM_FALHA
+}
+
+model Pessoa {
+  id         String           @id @default(cuid())
+  nome       String
+  tipo       TipoPessoa
+  unidade    String?
+  documento  String?          @unique
+  contatos   Json?
+  observacao String?          @db.Text
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  credenciais Credencial[]
+  eventos    EventoDeAcesso[]
+}
+
+model Credencial {
+  id             String           @id @default(cuid())
+  pessoaId       String
+  tipo           TipoCredencial
+  status         StatusCredencial @default(PENDENTE_CADASTRO)
+  valor          String?          @unique @db.VarChar(512)
+  vigenciaInicio DateTime?
+  vigenciaFim    DateTime?
+  meta           Json?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  pessoa         Pessoa           @relation(fields: [pessoaId], references: [id], onDelete: Cascade)
+  eventos        EventoDeAcesso[]
+
+  @@index([pessoaId])
+  @@index([tipo, status])
+}
+
+model Dispositivo {
+  id             String                @id @default(cuid())
+  nome           String
+  fabricante     FabricanteDispositivo
+  modelo         String?
+  ip             String
+  porta          Int
+  driver         String
+  status         StatusDispositivo     @default(OFFLINE)
+  capabilities   Json?
+  portariaId     String
+  portaria       Portaria              @relation(fields: [portariaId], references: [id])
+  pontosDeAcesso PontoDeAcesso[]
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+
+  @@index([portariaId])
+}
+
+model PontoDeAcesso {
+  id                    String             @id @default(cuid())
+  nome                  String
+  tipo                  TipoPontoAcesso
+  direcao               DirecaoPontoAcesso
+  dispositivoId         String
+  dispositivo           Dispositivo        @relation(fields: [dispositivoId], references: [id])
+  channelNaControladora Int?               @default(0)
+  portariaId            String
+  portaria              Portaria           @relation(fields: [portariaId], references: [id])
+  politicas             Json?
+  eventos               EventoDeAcesso[]
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+
+  @@index([dispositivoId])
+  @@index([portariaId])
+}
+
+model EventoDeAcesso {
+  id            BigInt           @default(autoincrement())
+  pessoaId      String?
+  credencialId  String?
+  pontoId       String
+  acao          AcaoEvento
+  resultado     ResultadoEvento
+  dataHora      DateTime         @db.Timestamp(3)
+  snapshotUri   String?          @db.VarChar(512)
+  meta          Json?
+  pessoa        Pessoa?          @relation(fields: [pessoaId], references: [id], onDelete: SetNull)
+  credencial    Credencial?      @relation(fields: [credencialId], references: [id], onDelete: SetNull)
+  pontoDeAcesso PontoDeAcesso    @relation(fields: [pontoId], references: [id], onDelete: Cascade)
+
+  @@id([id, dataHora])
+
+  @@index([dataHora, pontoId])
+  @@index([pessoaId, dataHora])
+  @@index([pontoId])
+  @@index([credencialId])
+}
+
+model Instalacao {
+  id        String     @id @default(cuid())
+  nome      String     @unique
+  licenca   Licenca?
+  portarias Portaria[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Portaria {
+  id             String          @id @default(cuid())
+  nome           String
+  instalacaoId   String
+  instalacao     Instalacao      @relation(fields: [instalacaoId], references: [id])
+  dispositivos   Dispositivo[]
+  pontosDeAcesso PontoDeAcesso[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([instalacaoId])
+}
+
+model Licenca {
+  id           String             @id @default(cuid())
+  instalacaoId String             @unique
+  chave        String             @unique
+  validade     DateTime
+  boundInfo    Json
+  status       StatusLicenca
+  instalacao   Instalacao         @relation(fields: [instalacaoId], references: [id])
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  modulos      LicencaModuloMap[]
+}
+
+model LicencaModuloMap {
+  id        String        @id @default(cuid())
+  licencaId String
+  modulo    ModuloLicenca
+  licenca   Licenca       @relation(fields: [licencaId], references: [id], onDelete: Cascade)
+
+  @@unique([licencaId, modulo])
+  @@index([licencaId])
+}
+
+model Operador {
+  id         String              @id @default(cuid())
+  authUserId String              @unique
+  nome       String
+  email      String              @unique
+  claims     Json?
+  ativo      Boolean             @default(true)
+  auditorias Auditoria[]
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+  perfis     OperadorPerfilMap[]
+}
+
+model OperadorPerfilMap {
+  id         String         @id @default(cuid())
+  operadorId String
+  perfil     PerfilOperador
+  operador   Operador       @relation(fields: [operadorId], references: [id], onDelete: Cascade)
+
+  @@unique([operadorId, perfil])
+  @@index([operadorId])
+}
+
+model Auditoria {
+  id            String    @id @default(cuid())
+  operadorId    String?
+  operadorNome  String
+  acao          String
+  justificativa String?   @db.Text
+  recursoTipo   String?
+  recursoId     String?
+  dadosAntigos  Json?
+  dadosNovos    Json?
+  timestamp     DateTime  @default(now()) @db.Timestamp(3)
+  operador      Operador? @relation(fields: [operadorId], references: [id], onDelete: SetNull)
+  
+  @@index([operadorId])
+  @@index([recursoTipo, recursoId])
+  @@index([timestamp])
+}
