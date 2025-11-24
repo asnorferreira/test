@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    // Layout
+    "rootDir": "src",
+    "outDir": "dist",
+
+    "module": "commonjs",
+    "target": "ES2020",
+    "moduleResolution": "node",
+    "types": ["node"],
+
+    // Saída
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    // Typechecking mais rígido
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+
+    // Compat util
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+
+    // Opções modernas
+    "isolatedModules": true,
+    "skipLibCheck": true,
+
+    // Crucial p/ CommonJS + TS exports
+    "verbatimModuleSyntax": false
+  },
+  // Exclude files/folders outside of rootDir (e.g. prisma/seed.ts)
+  "exclude": ["prisma"]
+}
