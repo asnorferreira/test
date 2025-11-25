@@ -1,0 +1,172 @@
+# ==========================================
+# NODE / PNPM
+# ==========================================
+node_modules/
+**/node_modules/
+.pnp
+.pnp.js
+.pnpm-store/
+.pnpm-debug.log
+
+# ==========================================
+# BUILD OUTPUTS
+# ==========================================
+dist/
+**/dist/
+build/
+**/build/
+.next/
+**/.next/
+**/.next/**
+out/
+**/out/
+.turbo/
+**/.turbo/
+.turbopack/
+**/.turbopack/
+
+# ==========================================
+# TYPESCRIPT
+# ==========================================
+*.tsbuildinfo
+**/*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# ==========================================
+# CACHE
+# ==========================================
+.cache/
+**/.cache/
+.vite/
+**/.vite/
+.eslintcache
+.stylelintcache
+parcel-cache/
+
+# ==========================================
+# ENV / SECRETS
+# ==========================================
+.env
+.env.*
+*.env
+*.env.*
+!**/.env.example
+!**/.env.local.example
+
+# ==========================================
+# LOGS
+# ==========================================
+*.log
+*.log.*
+logs/
+**/logs/
+*.pid
+
+# ==========================================
+# OS FILES
+# ==========================================
+.DS_Store
+**/.DS_Store
+Thumbs.db
+**/Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ==========================================
+# IDE / EDITOR
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-*
+*.iml
+
+# ==========================================
+# PACKAGES ESPECÍFICOS
+# ==========================================
+# Server
+packages/server/dist/
+packages/server/build/
+packages/server/node_modules/
+
+# Admin (Next.js) - IMPORTANTE: ignorar tudo em .next
+packages/admin/.next/
+packages/admin/out/
+packages/admin/node_modules/
+packages/admin/tsconfig.tsbuildinfo
+packages/admin/.turbo/
+
+# Widget
+packages/widget/dist/
+packages/widget/build/
+packages/widget/node_modules/
+
+# Extensions
+packages/extension/node_modules/
+packages/extension-mock/node_modules/
+packages/extension/*.crx
+packages/extension/*.pem
+packages/extension-mock/*.crx
+packages/extension-mock/*.pem
+
+# ==========================================
+# DATABASE / PRISMA
+# ==========================================
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# ==========================================
+# DOCKER
+# ==========================================
+docker-data/
+postgres-data/
+redis-data/
+*.tar
+*.tar.gz
+
+# ==========================================
+# TEMPORÁRIOS
+# ==========================================
+*.tmp
+*.temp
+*.bak
+*.orig
+*.rej
+*.backup
+*~
+~$*
+
+# ==========================================
+# VERCEL
+# ==========================================
+.vercel/
+
+# ==========================================
+# LOCKFILES EM PACOTES
+# ==========================================
+packages/*/package-lock.json
+packages/*/yarn.lock
+packages/*/pnpm-lock.yaml
+
+# ==========================================
+# COVERAGE / TESTS
+# ==========================================
+coverage/
+**/coverage/
+.nyc_output/
+*.lcov
+
+# ==========================================
+# MISC
+# ==========================================
+*.seed
+*.seeders
+dump.rdb
+.service-pids.json
+notes-local.md
+n8n-*.json.bak

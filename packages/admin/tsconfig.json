@@ -1,0 +1,56 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    /* ambiente / output */
+    "target": "ES2022",
+    "lib": [
+      "DOM",
+      "ES2022"
+    ],
+    /* next em ESM */
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "jsx": "preserve",
+    /* segurança e DX */
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "incremental": true,
+    /* tipos globais disponíveis no projeto */
+    "types": [
+      "node",
+      "next"
+    ],
+    /* para imports absolutos futuros (opcional) */
+    "baseUrl": ".",
+    "paths": {
+      "@intermedius/types/*": [
+        "../server/src/domain/*"
+      ]
+    },
+    "allowJs": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "next-env.d.ts",
+    "next.config.ts",
+    "postcss.config.js",
+    "tailwind.config.ts",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    ".next",
+    "out",
+    "dist"
+  ]
+}
