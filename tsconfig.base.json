@@ -1,48 +1,19 @@
 {
   "compilerOptions": {
-    /* ambiente / output */
     "target": "ES2022",
-    "lib": ["DOM", "ES2022"],
-
-    /* next em ESM */
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "jsx": "react-jsx",
-
-    /* DX / segurança */
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "lib": ["es2022", "dom"],
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "isolatedModules": true,
-    "noEmit": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "declaration": true,
+    "sourceMap": true,
+    "composite": true,
     "resolveJsonModule": true,
-    "incremental": true,
-
-    /* tipos globais que o projeto conhece */
-    "types": ["node", "next"],
-
-    /* imports absolutos dentro do próprio admin */
-    "baseUrl": ".",
-
-    /* opcional: se você quiser importar tipos do backend depois
-       ex: import { CampaignRules } from "@intermedius/types/..."
-       pode deixar já preparado. Se ainda não precisa, você pode apagar esse bloco. */
-    "paths": {
-      "@intermedius/types/*": ["../server/src/domain/*"]
-    }
-  },
-  "include": [
-    "next-env.d.ts",
-    "next.config.ts",
-    "tailwind.config.ts",
-    "postcss.config.js",
-    "**/*.ts",
-    "**/*.tsx"
-  ],
-  "exclude": [
-    "node_modules",
-    ".next",
-    "out",
-    "dist"
-  ]
+    "isolatedModules": true,
+    // "ignoreDeprecations": "6.0"
+  }
 }

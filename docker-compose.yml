@@ -1,32 +1,42 @@
-﻿version: '3.8'
+version: '3.8'
+
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: intermedius-postgres
+    container_name: jsp_postgres_db
     environment:
-      POSTGRES_USER: intermedius
-      POSTGRES_PASSWORD: intermedius
-      POSTGRES_DB: intermedius
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: jsp_db
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U intermedius"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - jsp-network
 
-  redis:
-    image: redis:7-alpine
-    container_name: intermedius-redis
+  api:
+    container_name: jsp_api
+    build:
+      context: .
+      dockerfile: packages/api/Dockerfile
     ports:
-      - "6379:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - "3333:3333"
+    depends_on:
+      - postgres
+    env_file:
+      - packages/api/.env
+    environment:
+      DATABASE_URL: "postgresql://postgres:mysecretpassword@postgres:5432/jsp_db?schema=public"
+      NODE_ENV: development
+      API_PORT: 3333 
+    networks:
+      - jsp-network
+
+networks:
+  jsp-network:
+    driver: bridge
 
 volumes:
-  postgres_data:
+  postgres-data:
+    driver: local
