@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  fullName     String
+  email        String   @unique
+  passwordHash String
+  role         UserRole
+  isActive     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  candidateProfile CandidateProfile?
+  submissions TalentPoolSubmission[]
+}
+
+enum UserRole {
+  CANDIDATE
+  RH
+  GESTOR
+  ADMIN
+}
+
+model VerificationToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  email     String
+  expiresAt DateTime
+  usedAt    DateTime?
+}
+
+model CandidateProfile {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nomeCompleto String
+  telefone    String?
+  cidade      String?
+  linkedinUrl String?  @db.VarChar(255)
+  updatedAt   DateTime @updatedAt
+}
+
+model TalentPoolSubmission {
+  id           String   @id @default(uuid())
+  submissionId String   @unique @default(cuid())
+  status       SubmissionStatus @default(NOVO)
+  candidateId String
+  candidate   User     @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  cvUrl String
+  nomeCompleto String
+  email        String 
+  telefone     String?
+  cidade       String?
+  linkedinUrl  String?
+  areaDesejada  String
+  tipoContrato  String
+  modalidade    String
+  disponibilidade String
+  descricaoVaga String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum SubmissionStatus {
+  NOVO
+  EM_ANALISE
+  ENTREVISTA
+  CONTRATADO
+  REPROVADO
+}
+
+model CommercialLead {
+  id                 String   @id @default(uuid())
+  fullName           String   
+  position           String   
+  email              String   
+  phone              String   
+  company            String   
+  sector             String   
+  services           String[] 
+  estimatedHeadcount Int      
+  needsDescription   String?   @db.Text 
+
+  createdAt          DateTime @default(now())
+  
+  @@map("commercial_leads")
+}
