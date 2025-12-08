@@ -5,6 +5,8 @@ import { IamModule } from './modules/iam/iam.module';
 import { ProfilesModule } from './modules/profiles/profiles.module';
 import { TalentPoolModule } from './modules/talent-pool/talent-pool.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { CommercialModule } from './modules/comercial/comercial.module';
+import { ContactModule } from './modules/contact/contact.module';
 import { CoreStorageModule } from './core/storage/storage.module';
 import { CoreEmailModule } from './core/email/email.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
@@ -20,6 +22,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     ProfilesModule,
     TalentPoolModule,
     NotificationsModule,
+    CommercialModule,
+    ContactModule,
   ],
   controllers: [],
   providers: [],

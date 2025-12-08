@@ -1,21 +1,25 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '@/core/prisma/prisma.service';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from "@nestjs/common";
+import { PrismaService } from "@/core/prisma/prisma.service";
 import {
   CreateSubmissionDto,
   ExportFilters,
   ITalentPoolRepository,
   PaginationResponse,
-} from '../../application/ports/i-talent-pool.repository';
-import { Prisma, SubmissionStatus, TalentPoolSubmission } from '@prisma/client';
-import { MySubmissionResponse } from '../../presentation/responses/my-submission.response';
-import { GetTalentPoolQueryDto } from '../../presentation/dtos/get-talent-pool-query.dto';
+} from "../../application/ports/i-talent-pool.repository";
+import { Prisma, SubmissionStatus, TalentPoolSubmission } from "@prisma/client";
+import { MySubmissionResponse } from "../../presentation/responses/my-submission.response";
+import { GetTalentPoolQueryDto } from "../../presentation/dtos/get-talent-pool-query.dto";
 
 @Injectable()
 export class TalentPoolRepository implements ITalentPoolRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async createSubmission(
-    dto: CreateSubmissionDto,
+    dto: CreateSubmissionDto
   ): Promise<TalentPoolSubmission> {
     return this.prisma.talentPoolSubmission.create({
       data: {
@@ -37,7 +41,7 @@ export class TalentPoolRepository implements ITalentPoolRepository {
   }
 
   async findByCandidateId(
-    candidateId: string,
+    candidateId: string
   ): Promise<MySubmissionResponse[]> {
     return this.prisma.talentPoolSubmission.findMany({
       where: { candidateId },
@@ -49,13 +53,13 @@ export class TalentPoolRepository implements ITalentPoolRepository {
         updatedAt: true,
       },
       orderBy: {
-        updatedAt: 'desc',
+        updatedAt: "desc",
       },
     });
   }
 
   async findAllPaginated(
-    query: GetTalentPoolQueryDto,
+    query: GetTalentPoolQueryDto
   ): Promise<PaginationResponse<TalentPoolSubmission>> {
     const { page = 1, limit = 10, status, search } = query;
     const skip = (page - 1) * limit;
@@ -68,9 +72,9 @@ export class TalentPoolRepository implements ITalentPoolRepository {
 
     if (search) {
       where.OR = [
-        { nomeCompleto: { contains: search, mode: 'insensitive' } },
-        { submissionId: { contains: search, mode: 'insensitive' } },
-        { areaDesejada: { contains: search, mode: 'insensitive' } },
+        { nomeCompleto: { contains: search, mode: "insensitive" } },
+        { submissionId: { contains: search, mode: "insensitive" } },
+        { areaDesejada: { contains: search, mode: "insensitive" } },
       ];
     }
 
@@ -81,7 +85,7 @@ export class TalentPoolRepository implements ITalentPoolRepository {
           skip,
           take: limit,
           orderBy: {
-            updatedAt: 'desc',
+            updatedAt: "desc",
           },
         }),
         this.prisma.talentPoolSubmission.count({ where }),
@@ -97,8 +101,8 @@ export class TalentPoolRepository implements ITalentPoolRepository {
         },
       };
     } catch (err: unknown) {
-      console.error('Falha na transação de paginação:', err);
-      throw new InternalServerErrorException('Erro ao buscar dados do banco.');
+      console.error("Falha na transação de paginação:", err);
+      throw new InternalServerErrorException("Erro ao buscar dados do banco.");
     }
   }
 
@@ -107,20 +111,20 @@ export class TalentPoolRepository implements ITalentPoolRepository {
       where: { id },
     });
     if (!submission) {
-      throw new NotFoundException('Submissão não encontrada.');
+      throw new NotFoundException("Submissão não encontrada.");
     }
     return submission;
   }
 
   async updateStatus(
     id: string,
-    status: SubmissionStatus,
+    status: SubmissionStatus
   ): Promise<TalentPoolSubmission> {
     const existing = await this.prisma.talentPoolSubmission.findUnique({
       where: { id },
     });
     if (!existing) {
-      throw new NotFoundException('Submissão não encontrada.');
+      throw new NotFoundException("Submissão não encontrada.");
     }
     return this.prisma.talentPoolSubmission.update({
       where: { id },
@@ -128,9 +132,7 @@ export class TalentPoolRepository implements ITalentPoolRepository {
     });
   }
 
-  async findSubmissionsByIds(
-    ids: string[],
-  ): Promise<TalentPoolSubmission[]> {
+  async findSubmissionsByIds(ids: string[]): Promise<TalentPoolSubmission[]> {
     return this.prisma.talentPoolSubmission.findMany({
       where: {
         id: { in: ids },
@@ -139,7 +141,7 @@ export class TalentPoolRepository implements ITalentPoolRepository {
   }
 
   async findAllSubmissionsByFilter(
-    filters: ExportFilters,
+    filters: ExportFilters
   ): Promise<TalentPoolSubmission[]> {
     const where: Prisma.TalentPoolSubmissionWhereInput = {};
     if (filters.status) {
@@ -147,10 +149,35 @@ export class TalentPoolRepository implements ITalentPoolRepository {
     }
     if (filters.search) {
       where.OR = [
-        { nomeCompleto: { contains: filters.search, mode: 'insensitive' } },
-        { submissionId: { contains: filters.search, mode: 'insensitive' } },
+        { nomeCompleto: { contains: filters.search, mode: "insensitive" } },
+        { submissionId: { contains: filters.search, mode: "insensitive" } },
       ];
     }
     return this.prisma.talentPoolSubmission.findMany({ where });
+  }
+
+  async findSubmissionsForOpportunities(
+    areas: string[],
+    submissionIds?: string[]
+  ) {
+    const whereCondition: any = {
+      jobArea: { in: areas },
+    };
+
+    if (submissionIds && submissionIds.length > 0) {
+      whereCondition.submissionId = { in: submissionIds };
+    }
+
+    return this.prisma.talentPoolSubmission.findMany({
+      where: whereCondition,
+      select: {
+        submissionId: true,
+        candidateProfile: {
+          select: {
+            userId: true,
+          },
+        },
+      },
+    });
   }
 }

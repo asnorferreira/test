@@ -19,13 +19,13 @@ services:
     container_name: jsp_api
     build:
       context: .
-      dockerfile: packages/api/Dockerfile
+      dockerfile: app/api/Dockerfile
     ports:
       - "3333:3333"
     depends_on:
       - postgres
     env_file:
-      - packages/api/.env
+      - app/api/.env
     environment:
       DATABASE_URL: "postgresql://postgres:mysecretpassword@postgres:5432/jsp_db?schema=public"
       NODE_ENV: development

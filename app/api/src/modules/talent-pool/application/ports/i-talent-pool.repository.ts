@@ -1,6 +1,6 @@
-import { SubmissionStatus, TalentPoolSubmission } from '@prisma/client';
-import { MySubmissionResponse } from '../../presentation/responses/my-submission.response';
-import { GetTalentPoolQueryDto } from '../../presentation/dtos/get-talent-pool-query.dto';
+import { SubmissionStatus, TalentPoolSubmission } from "@prisma/client";
+import { MySubmissionResponse } from "../../presentation/responses/my-submission.response";
+import { GetTalentPoolQueryDto } from "../../presentation/dtos/get-talent-pool-query.dto";
 
 export type CreateSubmissionDto = {
   candidateId: string;
@@ -34,29 +34,32 @@ export type ExportFilters = {
 
 export abstract class ITalentPoolRepository {
   abstract createSubmission(
-    dto: CreateSubmissionDto,
+    dto: CreateSubmissionDto
   ): Promise<TalentPoolSubmission>;
 
   abstract findByCandidateId(
-    candidateId: string,
+    candidateId: string
   ): Promise<MySubmissionResponse[]>;
 
   abstract findAllPaginated(
-    query: GetTalentPoolQueryDto,
+    query: GetTalentPoolQueryDto
   ): Promise<PaginationResponse<TalentPoolSubmission>>;
 
   abstract findDetailsById(id: string): Promise<TalentPoolSubmission | null>;
 
   abstract updateStatus(
     id: string,
-    status: SubmissionStatus,
+    status: SubmissionStatus
   ): Promise<TalentPoolSubmission>;
 
-  abstract findSubmissionsByIds(
-    ids: string[],
-  ): Promise<TalentPoolSubmission[]>;
+  abstract findSubmissionsByIds(ids: string[]): Promise<TalentPoolSubmission[]>;
 
   abstract findAllSubmissionsByFilter(
-    filters: ExportFilters,
+    filters: ExportFilters
   ): Promise<TalentPoolSubmission[]>;
+
+  abstract findSubmissionsForOpportunities(
+    areas: string[],
+    submissionIds?: string[]
+  ): Promise<any[]>;
 }

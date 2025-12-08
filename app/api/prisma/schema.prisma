@@ -93,3 +93,25 @@ model CommercialLead {
   
   @@map("commercial_leads")
 }
+
+model ContactMessage {
+  id        String   @id @default(uuid())
+  fullName  String
+  email     String
+  phone     String
+  subject   String?  
+  message   String   @db.Text
+  
+  status    ContactStatus @default(PENDENTE)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("contact_messages")
+}
+
+enum ContactStatus {
+  PENDENTE
+  RESPONDIDO
+  ARQUIVADO
+}

@@ -10,6 +10,7 @@ import {
   UploadedFile,
   UseGuards,
   UseInterceptors,
+  BadRequestException
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -104,6 +105,8 @@ export class TalentPoolController {
     )
     file: FileUpload,
   ) {
+    if (!file) throw new BadRequestException('Arquivo é obrigatório.');
+
     return this.submitToTalentPoolUseCase.execute(dto, candidateId, file);
   }
 
