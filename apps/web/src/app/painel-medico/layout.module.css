@@ -1,0 +1,79 @@
+.page {
+  min-height: 100vh;
+  background: #fef6f9;
+}
+
+.topNav {
+  display: flex;
+  justify-content: center;
+  background: #fef6f9;
+}
+
+.topNavbar {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 1.25rem 2.75rem;
+  gap: 1rem;
+  box-sizing: border-box;
+}
+
+.topLogo {
+  font-family: var(--font-playfair), 'Playfair Display', serif;
+  letter-spacing: 0.1em;
+  font-size: 1.6rem;
+  color: #c91f6d;
+  text-decoration: none;
+}
+
+.navRight {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.navLink {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.85rem;
+  color: #c91f6d;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.navButton {
+  border: none;
+  background: #0f312b;
+  color: #fff;
+  padding: 0.65rem 1rem;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.container {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+  box-sizing: border-box;
+}
+
+.card {
+  background: #fff;
+  border-radius: 1.2rem;
+  padding: 1.4rem 1.6rem;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  color: #0f312b;
+  font-weight: 600;
+}
+
+@media (max-width: 960px) {
+  .topNavbar {
+    padding: 1.1rem 1.25rem;
+  }
+}
+

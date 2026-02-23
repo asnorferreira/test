@@ -1,0 +1,277 @@
+.grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  font-size: 0.75rem;
+  color: #c91f6d;
+  margin: 0 0 0.25rem;
+}
+
+.title {
+  margin: 0;
+  color: #0f312b;
+  font-size: clamp(1.7rem, 2.6vw, 2.2rem);
+}
+
+.subtitle {
+  margin: 0.4rem 0 0;
+  color: #3a4548;
+  font-weight: 500;
+}
+
+.toolbar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.select {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+  padding: 0.6rem 0.9rem;
+  background: #fff;
+  font-weight: 700;
+  color: #0f312b;
+}
+
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+
+.statCard {
+  background: #fff;
+  border-radius: 1rem;
+  padding: 1rem 1.1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  display: grid;
+  gap: 0.25rem;
+}
+
+.statLabel {
+  font-size: 0.8rem;
+  color: #526062;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-weight: 700;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f312b;
+}
+
+.list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.caseCard {
+  background: #fff;
+  border-radius: 1.2rem;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  display: grid;
+  gap: 0.75rem;
+}
+
+.caseTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.caseTitle {
+  margin: 0;
+  color: #0f312b;
+  font-weight: 800;
+}
+
+.caseMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  color: #3a4548;
+  font-weight: 600;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.8rem;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.badgePending {
+  background: rgba(255, 123, 139, 0.12);
+  color: #7c2a52;
+}
+
+.badgePre {
+  background: rgba(201, 31, 109, 0.1);
+  color: #8c1c50;
+}
+
+.badgeApproved {
+  background: rgba(15, 136, 73, 0.12);
+  color: #0f8849;
+}
+
+.badgeDenied {
+  background: rgba(214, 60, 79, 0.1);
+  color: #d63c4f;
+}
+
+.caseActions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.primaryLink {
+  background: #ff7b8b;
+  color: #fff;
+  padding: 0.65rem 1.05rem;
+  border-radius: 999px;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 10px 18px rgba(255, 123, 139, 0.25);
+}
+
+.muted {
+  color: #3a4548;
+  margin: 0;
+}
+
+.sectionCard {
+  background: #fff;
+  border-radius: 1.2rem;
+  padding: 1.2rem 1.4rem;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.sectionTitle {
+  margin: 0 0 0.75rem;
+  color: #0f312b;
+}
+
+.listClean {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.qaItem {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.9rem;
+  background: #f8faf8;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.qaQuestion {
+  margin: 0;
+  font-weight: 800;
+  color: #0f312b;
+}
+
+.qaAnswer {
+  margin: 0;
+  color: #3a4548;
+  font-weight: 600;
+}
+
+.alertItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.9rem;
+  background: rgba(214, 60, 79, 0.06);
+  border: 1px solid rgba(214, 60, 79, 0.18);
+  color: #8b2a36;
+  font-weight: 700;
+}
+
+.detailHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.backLink {
+  color: #c91f6d;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.buttonRow {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.button {
+  border: none;
+  border-radius: 999px;
+  padding: 0.75rem 1.1rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.approveButton {
+  background: #0f8849;
+  color: #fff;
+}
+
+.denyButton {
+  background: #d63c4f;
+  color: #fff;
+}
+
+.disabledButton {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.toast {
+  background: rgba(15, 49, 43, 0.08);
+  border: 1px solid rgba(15, 49, 43, 0.12);
+  border-radius: 0.9rem;
+  padding: 0.85rem 1rem;
+  color: #0f312b;
+  font-weight: 700;
+}
+
