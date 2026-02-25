@@ -1,0 +1,41 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "outDir": "./dist",
+        "rootDir": "./",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "types": [
+            "node",
+            "jest"
+        ],
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "incremental": true,
+        "paths": {
+            "@/*": [
+                "./src/*"
+            ],
+            "@maemais/shared-types": [
+                "../../packages/shared-types/src/index.ts"
+            ],
+            "@maemais/shared-types/*": [
+                "../../packages/shared-types/src/*"
+            ]
+        }
+    },
+    "references": [
+        {
+            "path": "../../packages/shared-types"
+        }
+    ],
+    "include": [
+        "src/**/*",
+        "prisma/**/*",
+        "test/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}

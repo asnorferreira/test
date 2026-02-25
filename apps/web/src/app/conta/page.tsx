@@ -5,6 +5,11 @@ import { useEffect, useMemo, useState } from 'react'
 import styles from './page.module.css'
 import { listPatientNotifications, markNotificationRead, type PatientNotification } from '@/modules/doctor/services/cases.store'
 
+type TreatmentsSection = {
+  title: string
+  items: string[]
+  subtitles?: Record<string, string>
+}
 const navLinks = [
   {
     label: 'Tratamentos',
@@ -23,7 +28,7 @@ const navActions = [
   { label: 'Minha jornada', href: '/conta' },
 ]
 
-const treatmentsMenu = [
+const treatmentsMenu : TreatmentsSection[] = [
   {
     title: 'Tratamentos MaeMais',
     items: [

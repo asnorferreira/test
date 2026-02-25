@@ -1,0 +1,27 @@
+{
+  "name": "maemais-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Monorepo para o ecossistema MãeMais (Web e API)",
+  "author": "MãeMais",
+  "scripts": {
+    "dev:web": "pnpm --filter @maemais/web dev",
+    "dev:api": "pnpm --filter @maemais/api start:dev",
+    "build:shared": "pnpm --filter @maemais/shared-types build",
+    "build:web": "pnpm --filter @maemais/web build",
+    "build:api": "pnpm --filter @maemais/api build",
+    "db:dev:generate": "pnpm --filter @maemais/api exec prisma generate",
+    "db:dev:up": "docker-compose up -d postgres",
+    "db:dev:migrate": "pnpm --filter @maemais/api exec prisma migrate dev",
+    "db:dev:studio": "pnpm --filter @maemais/api exec prisma studio",
+    "test:api": "pnpm --filter @maemais/api test",
+    "test:api:e2e": "pnpm --filter @maemais/api test:e2e",
+    "lint": "pnpm --filter \"*\" lint"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "turbo": "^1.12.0",
+    "typescript": "^5.3.3"
+  },
+  "packageManager": "pnpm@8.15.4"
+}

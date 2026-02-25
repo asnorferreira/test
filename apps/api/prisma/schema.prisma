@@ -1,0 +1,184 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+}
+
+// ------------------------------------------------------
+// MODELS
+// ------------------------------------------------------
+
+model User {
+    id           String   @id @default(uuid()) @db.Uuid
+    name         String
+    email        String   @unique
+    cpf          String?  @unique
+    phone        String?
+    passwordHash String   @map("password_hash")
+    role         String   @default("PATIENT") // PATIENT, DOCTOR, ADMIN
+    createdAt    DateTime @default(now()) @map("created_at")
+    updatedAt    DateTime @updatedAt @map("updated_at")
+
+    questionnaires  Questionnaire[]
+    medicalCasesPat MedicalCase[]   @relation("MedicalCasesUser")
+    medicalCasesDoc MedicalCase[]   @relation("MedicalCasesDoctor")
+    prescriptions   Prescription[]  @relation("DoctorPrescriptions")
+    orders          Order[]
+    notifications   Notification[]
+
+    @@map("users")
+}
+
+model Product {
+    id          String   @id @default(uuid()) @db.Uuid
+    name        String
+    slug        String   @unique
+    description String?
+    isActive    Boolean  @default(true) @map("is_active")
+    basePrice   Decimal  @map("base_price") @db.Decimal(10, 2)
+    createdAt   DateTime @default(now()) @map("created_at")
+    updatedAt   DateTime @updatedAt @map("updated_at")
+
+    orderItems OrderItem[]
+
+    @@map("products")
+}
+
+model Questionnaire {
+    id                String   @id @default(uuid()) @db.Uuid
+    userId            String   @map("user_id") @db.Uuid
+    status            String   @default("PENDING_MEDICAL_REVIEW")
+    preAnalysisStatus String?  @map("pre_analysis_status")
+    createdAt         DateTime @default(now()) @map("created_at")
+    updatedAt         DateTime @updatedAt @map("updated_at")
+
+    user        User                  @relation(fields: [userId], references: [id])
+    answers     QuestionnaireAnswer[]
+    medicalCase MedicalCase?
+
+    @@index([userId])
+    @@map("questionnaires")
+}
+
+model QuestionnaireAnswer {
+    id              String @id @default(uuid()) @db.Uuid
+    questionnaireId String @map("questionnaire_id") @db.Uuid
+    questionKey     String @map("question_key")
+    answerValue     Json   @map("answer_value")
+
+    questionnaire Questionnaire @relation(fields: [questionnaireId], references: [id], onDelete: Cascade)
+
+    @@index([questionnaireId])
+    @@map("questionnaire_answers")
+}
+
+model MedicalCase {
+    id                      String    @id @default(uuid()) @db.Uuid
+    userId                  String    @map("user_id") @db.Uuid
+    questionnaireId         String    @unique @map("questionnaire_id") @db.Uuid
+    doctorId                String?   @map("doctor_id") @db.Uuid
+    status                  String    @default("PENDING_MEDICAL_REVIEW")
+    reason                  String?
+    prescriptionDocumentUrl String?   @map("prescription_document_url")
+    createdAt               DateTime  @default(now()) @map("created_at")
+    reviewedAt              DateTime? @map("reviewed_at")
+
+    user          User          @relation("MedicalCasesUser", fields: [userId], references: [id])
+    doctor        User?         @relation("MedicalCasesDoctor", fields: [doctorId], references: [id])
+    questionnaire Questionnaire @relation(fields: [questionnaireId], references: [id])
+    prescription  Prescription?
+
+    @@index([userId])
+    @@index([doctorId])
+    @@map("medical_cases")
+}
+
+model Prescription {
+    id            String    @id @default(uuid()) @db.Uuid
+    medicalCaseId String    @unique @map("medical_case_id") @db.Uuid
+    doctorId      String    @map("doctor_id") @db.Uuid
+    status        String    @default("ACTIVE")
+    documentUrl   String    @map("document_url")
+    createdAt     DateTime  @default(now()) @map("created_at")
+    validUntil    DateTime? @map("valid_until")
+
+    medicalCase MedicalCase @relation(fields: [medicalCaseId], references: [id])
+    doctor      User        @relation("DoctorPrescriptions", fields: [doctorId], references: [id])
+    orders      Order[]
+
+    @@index([doctorId])
+    @@map("prescriptions")
+}
+
+model Order {
+    id             String  @id @default(uuid()) @db.Uuid
+    userId         String  @map("user_id") @db.Uuid
+    prescriptionId String? @map("prescription_id") @db.Uuid // Opcional agora, pois podem haver produtos sem receita
+    status         String  @default("AWAITING_PAYMENT")
+
+    // Valores da Venda Direta
+    subtotalAmount Decimal @map("subtotal_amount") @db.Decimal(10, 2)
+    shippingFee    Decimal @default(0) @map("shipping_fee") @db.Decimal(10, 2)
+    totalAmount    Decimal @map("total_amount") @db.Decimal(10, 2)
+
+    trackingCode String? @map("tracking_code")
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    user         User          @relation(fields: [userId], references: [id])
+    prescription Prescription? @relation(fields: [prescriptionId], references: [id])
+    items        OrderItem[]
+    invoices     Invoice[] // Relacionamento com NFs (Farmácia e Plataforma)
+
+    @@index([userId])
+    @@map("orders")
+}
+
+model OrderItem {
+    id        String  @id @default(uuid()) @db.Uuid
+    orderId   String  @map("order_id") @db.Uuid
+    productId String  @map("product_id") @db.Uuid
+    quantity  Int
+    unitPrice Decimal @map("unit_price") @db.Decimal(10, 2)
+
+    order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+    product Product @relation(fields: [productId], references: [id])
+
+    @@index([orderId])
+    @@index([productId])
+    @@map("order_items")
+}
+
+// NOVO: Registro das Notas Fiscais, isolando a responsabilidade fiscal
+model Invoice {
+    id          String   @id @default(uuid()) @db.Uuid
+    orderId     String   @map("order_id") @db.Uuid
+    type        String // FARMACIA_PRODUTO ou PLATAFORMA_INTERMEDIACAO
+    amount      Decimal  @db.Decimal(10, 2)
+    documentUrl String   @map("document_url") // URL no Supabase Storage
+    issuedAt    DateTime @default(now()) @map("issued_at")
+
+    order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+    @@index([orderId])
+    @@map("invoices")
+}
+
+model Notification {
+    id        String    @id @default(uuid()) @db.Uuid
+    userId    String?   @map("user_id") @db.Uuid
+    type      String
+    channel   String // EMAIL, SMS, WHATSAPP, PUSH
+    payload   Json
+    status    String    @default("PENDING") // PENDING, SENT, ERROR
+    createdAt DateTime  @default(now()) @map("created_at")
+    sentAt    DateTime? @map("sent_at")
+
+    user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
+    @@map("notifications")
+}

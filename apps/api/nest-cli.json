@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "tsconfig.json"
+  },
+  "monorepo": true,
+  "root": ".",
+  "projects": {
+    "api": {
+      "type": "application",
+      "root": ".",
+      "entryFile": "src/main",
+      "sourceRoot": "src",
+      "compilerOptions": {
+        "tsConfigPath": "tsconfig.json",
+        "assets": [
+          "prisma/schema.prisma",
+          { 
+            "include": "prisma.config.ts", 
+            "outDir": "."
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: maemais_pg_dev
+    environment:
+      POSTGRES_USER: maemais_user
+      POSTGRES_PASSWORD: maemais_password
+      POSTGRES_DB: maemais_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

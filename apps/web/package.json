@@ -1,5 +1,5 @@
 {
-  "name": "mae-mais-web",
+  "name": "@maemais/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@maemais/shared-types": "workspace:*",
     "next": "^16.0.10",
     "react": "18.3.1",
     "react-dom": "18.3.1"
