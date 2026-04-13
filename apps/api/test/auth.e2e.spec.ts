@@ -5,6 +5,9 @@ import { AppModule } from "../src/app.module";
 import { PrismaService } from "../src/infra/database/prisma/prisma.service";
 import { MailPort } from "@/core/ports/mail.port";
 
+import { TransformInterceptor } from "../src/core/interceptors/transform.interceptor";
+import { AllExceptionsFilter } from "../src/core/filters/all-exceptions.filter";
+
 describe("AuthController (e2e)", () => {
   let app: INestApplication;
   let users: any[] = [];
@@ -55,7 +58,12 @@ describe("AuthController (e2e)", () => {
       .compile();
 
     app = moduleFixture.createNestApplication();
+
+    app.setGlobalPrefix("api/v1");
     app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+    app.useGlobalInterceptors(new TransformInterceptor());
+    app.useGlobalFilters(new AllExceptionsFilter());
+
     await app.init();
   });
 
@@ -76,57 +84,59 @@ describe("AuthController (e2e)", () => {
     password: "password123",
   };
 
-  it("/auth/register (POST) - Sucesso", async () => {
+  it("/api/v1/auth/register (POST) - Sucesso", async () => {
     const response = await request(app.getHttpServer())
-      .post("/auth/register")
+      .post("/api/v1/auth/register")
       .send(testUser)
       .expect(201);
 
-    expect(response.body.accessToken).toBeDefined();
-    expect(response.body.user.email).toBe(testUser.email);
+    expect(response.body.success).toBe(true);
+    expect(response.body.data.accessToken).toBeDefined();
+    expect(response.body.data.user.email).toBe(testUser.email);
 
     await new Promise((resolve) => setImmediate(resolve));
 
     expect(mockMailService.sendEmail).toHaveBeenCalled();
   });
 
-  it("/auth/register (POST) - Falha: E-mail Duplicado", async () => {
+  it("/api/v1/auth/register (POST) - Falha: E-mail Duplicado", async () => {
     await request(app.getHttpServer())
-      .post("/auth/register")
+      .post("/api/v1/auth/register")
       .send(testUser)
       .expect(201);
 
     await request(app.getHttpServer())
-      .post("/auth/register")
+      .post("/api/v1/auth/register")
       .send(testUser)
       .expect(409);
   });
 
-  it("/auth/login (POST) - Sucesso", async () => {
+  it("/api/v1/auth/login (POST) - Sucesso", async () => {
     await request(app.getHttpServer())
-      .post("/auth/register")
+      .post("/api/v1/auth/register")
       .send(testUser)
       .expect(201);
 
     const response = await request(app.getHttpServer())
-      .post("/auth/login")
+      .post("/api/v1/auth/login")
       .send({
         email: testUser.email,
         password: testUser.password,
       })
       .expect(200);
 
-    expect(response.body.accessToken).toBeDefined();
+    expect(response.body.success).toBe(true);
+    expect(response.body.data.accessToken).toBeDefined();
   });
 
-  it("/auth/login (POST) - Falha: Senha Incorreta", async () => {
+  it("/api/v1/auth/login (POST) - Falha: Senha Incorreta", async () => {
     await request(app.getHttpServer())
-      .post("/auth/register")
+      .post("/api/v1/auth/register")
       .send(testUser)
       .expect(201);
 
     await request(app.getHttpServer())
-      .post("/auth/login")
+      .post("/api/v1/auth/login")
       .send({
         email: testUser.email,
         password: "wrongpassword",

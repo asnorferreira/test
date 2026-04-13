@@ -2,6 +2,18 @@ import { Entity } from "@/core/domain/Entity";
 import { OrderStatus } from "@maemais/shared-types";
 import { OrderItem } from "./order-item.entity";
 
+export interface ShippingAddress {
+  zipCode: string;
+  street: string;
+  number: string;
+  complement?: string | null;
+  neighborhood: string;
+  city: string;
+  state: string;
+  recipient: string;
+  phone: string;
+}
+
 export interface OrderProps {
   userId: string;
   prescriptionId?: string | null;
@@ -11,6 +23,11 @@ export interface OrderProps {
   totalAmount: number;
   trackingCode?: string | null;
   items: OrderItem[];
+  shippingAddress?: ShippingAddress | null;
+  partnerPharmacyId?: string | null;
+  paymentGateway?: string | null;
+  gatewayOrderId?: string | null;
+  gatewayTransactionId?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -49,6 +66,13 @@ export class Order extends Entity<OrderProps> {
 
   updateStatus(newStatus: OrderStatus) {
     this.props.status = newStatus;
+    this.props.updatedAt = new Date();
+  }
+
+  setGatewayInfo(gateway: string, gatewayOrderId?: string, txId?: string) {
+    this.props.paymentGateway = gateway;
+    this.props.gatewayOrderId = gatewayOrderId ?? null;
+    this.props.gatewayTransactionId = txId ?? null;
     this.props.updatedAt = new Date();
   }
 

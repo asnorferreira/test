@@ -5,4 +5,6 @@ export abstract class PrescriptionRepository {
   abstract update(prescription: Prescription): Promise<void>;
   abstract findById(id: string): Promise<Prescription | null>;
   abstract findByDoctorId(doctorId: string): Promise<Prescription[]>;
+  abstract findActiveByUserId(userId: string): Promise<Prescription[]>;
+  abstract belongsToUser(prescriptionId: string, userId: string): Promise<boolean>;
 }

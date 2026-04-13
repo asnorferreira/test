@@ -15,7 +15,11 @@ async function bootstrap() {
   app.enableCors({
     origin:
       process.env.NODE_ENV === "production"
-        ? ["https://maemais.com", "https://admin.maemais.com"]
+        ? [
+            "https://maemais.com",
+            "https://admin.maemais.com",
+            "https://sua-url-do-front-no-render.onrender.com",
+          ]
         : "*",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     credentials: true,
@@ -46,10 +50,11 @@ async function bootstrap() {
   const configService = app.get(ConfigService<Env, true>);
   const port = configService.get("PORT", { infer: true });
 
-  await app.listen(port);
-  console.log(`API MãeMais rodando na porta ${port}`);
+  await app.listen(port, "0.0.0.0");
+
+  console.log(`🚀 API MãeMais rodando na porta ${port} no host 0.0.0.0`);
   console.log(
-    `Documentação Swagger disponível em: http://localhost:${port}/api/docs`,
+    `📄 Documentação Swagger disponível em: http://localhost:${port}/api/docs`,
   );
 }
 

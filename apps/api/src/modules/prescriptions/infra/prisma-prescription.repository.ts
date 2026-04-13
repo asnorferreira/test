@@ -44,6 +44,36 @@ export class PrismaPrescriptionRepository implements PrescriptionRepository {
     );
   }
 
+  async findActiveByUserId(userId: string): Promise<Prescription[]> {
+    const raw = await this.prisma.prescription.findMany({
+      where: {
+        status: PrescriptionStatus.ACTIVE,
+        medicalCase: { userId },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    return raw.map((r) =>
+      Prescription.create(
+        {
+          medicalCaseId: r.medicalCaseId,
+          doctorId: r.doctorId,
+          status: r.status as PrescriptionStatus,
+          documentUrl: r.documentUrl,
+          validUntil: r.validUntil,
+          createdAt: r.createdAt,
+        },
+        r.id,
+      ),
+    );
+  }
+
+  async belongsToUser(prescriptionId: string, userId: string): Promise<boolean> {
+    const count = await this.prisma.prescription.count({
+      where: { id: prescriptionId, medicalCase: { userId } },
+    });
+    return count > 0;
+  }
+
   async findByDoctorId(doctorId: string): Promise<Prescription[]> {
     const raw = await this.prisma.prescription.findMany({
       where: { doctorId },

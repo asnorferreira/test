@@ -123,6 +123,23 @@ model Order {
     shippingFee    Decimal @default(0) @map("shipping_fee") @db.Decimal(10, 2)
     totalAmount    Decimal @map("total_amount") @db.Decimal(10, 2)
 
+    // Endereço de entrega
+    shippingZipCode      String? @map("shipping_zip_code")
+    shippingStreet       String? @map("shipping_street")
+    shippingNumber       String? @map("shipping_number")
+    shippingComplement   String? @map("shipping_complement")
+    shippingNeighborhood String? @map("shipping_neighborhood")
+    shippingCity         String? @map("shipping_city")
+    shippingState        String? @map("shipping_state")
+    shippingRecipient    String? @map("shipping_recipient")
+    shippingPhone        String? @map("shipping_phone")
+    partnerPharmacyId    String? @map("partner_pharmacy_id")
+
+    // Gateway de pagamento
+    paymentGateway       String? @map("payment_gateway")
+    gatewayOrderId       String? @map("gateway_order_id")
+    gatewayTransactionId String? @map("gateway_transaction_id")
+
     trackingCode String? @map("tracking_code")
 
     createdAt DateTime @default(now()) @map("created_at")

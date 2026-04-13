@@ -47,6 +47,19 @@ export class PrescriptionService {
     return { id: prescription.id, status: prescription.props.status };
   }
 
+  async getMyActivePrescriptions(userId: string) {
+    const result = await this.repo.findActiveByUserId(userId);
+    return result.map((p) => ({
+      id: p.id,
+      medicalCaseId: p.props.medicalCaseId,
+      doctorId: p.props.doctorId,
+      status: p.props.status,
+      documentUrl: p.props.documentUrl,
+      validUntil: p.props.validUntil,
+      createdAt: p.props.createdAt,
+    }));
+  }
+
   async getMyPrescriptions(doctorId: string) {
     const result = await this.repo.findByDoctorId(doctorId);
     return result.map((p) => ({

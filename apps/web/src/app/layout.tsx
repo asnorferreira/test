@@ -1,7 +1,7 @@
-
-
 import '../styles/globals.css'
 import { Playfair_Display, Inter } from 'next/font/google'
+import { CartProvider } from '@/modules/cart/CartContext'
+import { Header } from '@/modules/components/layout/Header'
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -24,8 +24,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang='pt-BR' className={`${playfair.variable} ${inter.variable}`}>
-      <body>{children}</body>
+    <html lang="pt-BR" className={`${playfair.variable} ${inter.variable}`}>
+      <body>
+        <CartProvider>
+          <Header />
+          {children}
+        </CartProvider>
+      </body>
     </html>
   )
 }

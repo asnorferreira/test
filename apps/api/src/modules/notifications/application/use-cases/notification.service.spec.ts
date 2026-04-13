@@ -1,4 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
+import { Logger } from "@nestjs/common";
 import { NotificationService } from "./notification.service";
 import { NotificationRepository } from "../../domain/repositories/notification.repository";
 import { MailPort } from "@/core/ports/mail.port";
@@ -8,6 +9,15 @@ describe("NotificationService", () => {
   let service: NotificationService;
   let repo: jest.Mocked<NotificationRepository>;
   let mailer: jest.Mocked<MailPort>;
+
+  beforeAll(() => {
+    jest.spyOn(Logger.prototype, "error").mockImplementation(() => {});
+    jest.spyOn(Logger.prototype, "log").mockImplementation(() => {});
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

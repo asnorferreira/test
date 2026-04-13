@@ -21,6 +21,13 @@ export class PrescriptionsController {
     return this.service.getMyPrescriptions(user.id);
   }
 
+  @Get("me")
+  @Roles(UserRole.PATIENT)
+  @ApiOperation({ summary: "Listar prescrições ativas do paciente logado" })
+  async getMyActive(@CurrentUser() user: any) {
+    return this.service.getMyActivePrescriptions(user.id);
+  }
+
   @Patch(":id/cancel")
   @Roles(UserRole.DOCTOR)
   @ApiOperation({ summary: "Cancelar uma prescrição" })

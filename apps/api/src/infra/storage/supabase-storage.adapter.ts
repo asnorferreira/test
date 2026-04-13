@@ -32,7 +32,6 @@ export class SupabaseStorageAdapter implements StoragePort {
         });
 
       if (error) throw error;
-
       this.logger.log(`Arquivo salvo no Supabase: ${data.path}`);
       return data.path;
     } catch (error) {
@@ -42,10 +41,15 @@ export class SupabaseStorageAdapter implements StoragePort {
   }
 
   async getFileUrl(filePath: string): Promise<string> {
-    const { data } = this.supabase.storage
+    const { data, error } = await this.supabase.storage
       .from(this.bucketName)
-      .getPublicUrl(filePath);
+      .createSignedUrl(filePath, 3600);
 
-    return data.publicUrl;
+    if (error || !data) {
+      this.logger.error(`Erro ao gerar Signed URL para ${filePath}`, error);
+      throw new Error("Não foi possível gerar o link seguro do documento.");
+    }
+
+    return data.signedUrl;
   }
 }

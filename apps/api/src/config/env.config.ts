@@ -17,8 +17,12 @@ export const envSchema = z.object({
   MAIL_PASS: z.string(),
   MAIL_FROM: z.string().default("noreply@maemais.com"),
   PAGARME_API_KEY: z.string().optional(),
+  PAGARME_API_URL: z.string().url().default("https://api.pagar.me/core/v5"),
+  PAGARME_WEBHOOK_SECRET: z.string().optional(),
   STRIPE_SECRET_KEY: z.string().optional(),
   DEFAULT_PAYMENT_GATEWAY: z.enum(["PAGARME", "STRIPE"]).default("PAGARME"),
+  VIACEP_API_URL: z.string().url().default("https://viacep.com.br/ws"),
+  SHIPPING_ORIGIN_ZIPCODE: z.string().default("01310100"),
 });
 
 export type Env = z.infer<typeof envSchema>;

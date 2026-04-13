@@ -20,6 +20,22 @@ export class PrismaInvoiceRepository implements InvoiceRepository {
       },
     });
   }
+  async createMany(invoices: Invoice[]): Promise<void> {
+    await this.prisma.$transaction(
+      invoices.map((invoice) =>
+        this.prisma.invoice.create({
+          data: {
+            id: invoice.id,
+            orderId: invoice.props.orderId,
+            type: invoice.props.type,
+            amount: invoice.props.amount,
+            documentUrl: invoice.props.documentUrl,
+            issuedAt: invoice.props.issuedAt,
+          },
+        }),
+      ),
+    );
+  }
 
   async findByOrderId(orderId: string): Promise<Invoice[]> {
     const raw = await this.prisma.invoice.findMany({ where: { orderId } });

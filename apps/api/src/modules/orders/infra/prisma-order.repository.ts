@@ -10,6 +10,7 @@ export class PrismaOrderRepository implements OrderRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(order: Order): Promise<void> {
+    const addr = order.props.shippingAddress;
     await this.prisma.order.create({
       data: {
         id: order.id,
@@ -20,6 +21,19 @@ export class PrismaOrderRepository implements OrderRepository {
         shippingFee: order.props.shippingFee,
         totalAmount: order.props.totalAmount,
         trackingCode: order.props.trackingCode,
+        shippingZipCode: addr?.zipCode ?? null,
+        shippingStreet: addr?.street ?? null,
+        shippingNumber: addr?.number ?? null,
+        shippingComplement: addr?.complement ?? null,
+        shippingNeighborhood: addr?.neighborhood ?? null,
+        shippingCity: addr?.city ?? null,
+        shippingState: addr?.state ?? null,
+        shippingRecipient: addr?.recipient ?? null,
+        shippingPhone: addr?.phone ?? null,
+        partnerPharmacyId: order.props.partnerPharmacyId ?? null,
+        paymentGateway: order.props.paymentGateway ?? null,
+        gatewayOrderId: order.props.gatewayOrderId ?? null,
+        gatewayTransactionId: order.props.gatewayTransactionId ?? null,
         items: {
           create: order.props.items.map((item) => ({
             id: item.id,
@@ -38,6 +52,9 @@ export class PrismaOrderRepository implements OrderRepository {
       data: {
         status: order.props.status,
         trackingCode: order.props.trackingCode,
+        paymentGateway: order.props.paymentGateway ?? null,
+        gatewayOrderId: order.props.gatewayOrderId ?? null,
+        gatewayTransactionId: order.props.gatewayTransactionId ?? null,
         updatedAt: order.props.updatedAt,
       },
     });
@@ -73,6 +90,20 @@ export class PrismaOrderRepository implements OrderRepository {
       ),
     );
 
+    const shippingAddress = raw.shippingZipCode
+      ? {
+          zipCode: raw.shippingZipCode,
+          street: raw.shippingStreet ?? "",
+          number: raw.shippingNumber ?? "",
+          complement: raw.shippingComplement,
+          neighborhood: raw.shippingNeighborhood ?? "",
+          city: raw.shippingCity ?? "",
+          state: raw.shippingState ?? "",
+          recipient: raw.shippingRecipient ?? "",
+          phone: raw.shippingPhone ?? "",
+        }
+      : null;
+
     const order = Order.create(
       {
         userId: raw.userId,
@@ -80,6 +111,11 @@ export class PrismaOrderRepository implements OrderRepository {
         shippingFee: Number(raw.shippingFee),
         trackingCode: raw.trackingCode,
         items,
+        shippingAddress,
+        partnerPharmacyId: raw.partnerPharmacyId,
+        paymentGateway: raw.paymentGateway,
+        gatewayOrderId: raw.gatewayOrderId,
+        gatewayTransactionId: raw.gatewayTransactionId,
       },
       raw.id,
     );

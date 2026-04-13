@@ -3,7 +3,7 @@ import { ConfigModule } from "@nestjs/config";
 import { EventEmitterModule } from "@nestjs/event-emitter";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
 import { APP_GUARD } from "@nestjs/core";
-
+import { AppController } from "./app.controller";
 import { validateEnv } from "./config/env.config";
 import { CONSTANTS } from "@maemais/shared-types";
 
@@ -17,6 +17,8 @@ import { PrescriptionsModule } from "./modules/prescriptions/prescriptions.modul
 import { OrdersModule } from "./modules/orders/orders.module";
 import { InvoicesModule } from "./modules/invoices/invoices.module";
 import { NotificationsModule } from "./modules/notifications/notifications.module";
+import { ShippingModule } from "./modules/shipping/shipping.module";
+import { PharmaciesModule } from "./modules/pharmacies/pharmacies.module";
 
 @Module({
   imports: [
@@ -42,7 +44,10 @@ import { NotificationsModule } from "./modules/notifications/notifications.modul
     OrdersModule,
     InvoicesModule,
     NotificationsModule,
+    ShippingModule,
+    PharmaciesModule,
   ],
+  controllers: [AppController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}

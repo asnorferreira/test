@@ -1,4 +1,6 @@
-export type UserRole = 'patient' | 'doctor' | 'admin'
+import { apiRequest, clearToken, setToken } from '@/lib/api-client'
+
+export type UserRole = 'patient' | 'doctor' | 'admin' | 'PATIENT' | 'DOCTOR' | 'ADMIN'
 
 export type Session = {
   id: string
@@ -29,12 +31,61 @@ export function setSession(session: Session) {
 export function clearSession() {
   if (typeof window === 'undefined') return
   window.localStorage.removeItem(SESSION_KEY)
+  clearToken()
 }
 
-type DoctorCredentials = {
+function normalizeRole(role: string): UserRole {
+  return role.toLowerCase() as UserRole
+}
+
+type LoginResponse = {
+  accessToken: string
+  user: { id: string; name: string; email: string; role: string }
+}
+
+export async function signInPatientReal(email: string, password: string) {
+  const res = await apiRequest<LoginResponse>('/auth/login', {
+    method: 'POST',
+    body: { email, password },
+    auth: false,
+  })
+  setToken(res.accessToken)
+  setSession({
+    id: res.user.id,
+    role: normalizeRole(res.user.role),
+    email: res.user.email,
+    name: res.user.name,
+    createdAt: Date.now(),
+  })
+  return res
+}
+
+export async function registerPatient(input: {
+  name: string
   email: string
   password: string
+  phone?: string
+  cpf?: string
+}) {
+  const res = await apiRequest<LoginResponse>('/auth/register', {
+    method: 'POST',
+    body: input,
+    auth: false,
+  })
+  setToken(res.accessToken)
+  setSession({
+    id: res.user.id,
+    role: normalizeRole(res.user.role),
+    email: res.user.email,
+    name: res.user.name,
+    createdAt: Date.now(),
+  })
+  return res
 }
+
+// --------- Mocks antigos (mantidos para telas de médico/admin que usam mock) ----------
+
+type DoctorCredentials = { email: string; password: string }
 
 export const MOCK_DOCTOR_CREDENTIALS: DoctorCredentials = {
   email: 'medico@maemais.com',
@@ -44,68 +95,36 @@ export const MOCK_DOCTOR_CREDENTIALS: DoctorCredentials = {
 export function signInDoctor(credentials: DoctorCredentials): { ok: boolean; error?: string } {
   const email = credentials.email.trim().toLowerCase()
   const password = credentials.password
-
   if (email !== MOCK_DOCTOR_CREDENTIALS.email || password !== MOCK_DOCTOR_CREDENTIALS.password) {
     return { ok: false, error: 'Credenciais inválidas.' }
   }
+  setSession({ id: 'd-001', role: 'doctor', email, name: 'Dra. Ana (mock)', createdAt: Date.now() })
+  return { ok: true }
+}
 
-  setSession({
-    id: 'd-001',
-    role: 'doctor',
-    email,
-    name: 'Dra. Ana (mock)',
-    createdAt: Date.now(),
-  })
+export const MOCK_ADMIN_CREDENTIALS = { email: 'admin@maemais.com', password: '123456' }
 
+export function signInPatient(credentials: { email: string; password: string }): { ok: boolean; error?: string } {
+  const email = credentials.email.trim().toLowerCase()
+  const password = credentials.password
+  if (!email || !password) return { ok: false, error: 'Preencha e-mail e senha.' }
+  if (email === MOCK_ADMIN_CREDENTIALS.email && password === MOCK_ADMIN_CREDENTIALS.password) {
+    setSession({ id: 'a-001', role: 'admin', email, name: 'Admin (mock)', createdAt: Date.now() })
+    return { ok: true }
+  }
+  setSession({ id: 'p-001', role: 'patient', email, name: 'Maria (mock)', createdAt: Date.now() })
   return { ok: true }
 }
 
 export function isDoctor(session: Session | null) {
-  return session?.role === 'doctor'
+  const r = session?.role?.toLowerCase()
+  return r === 'doctor'
 }
-
 export function isAdmin(session: Session | null) {
-  return session?.role === 'admin'
+  const r = session?.role?.toLowerCase()
+  return r === 'admin'
 }
-
-type PatientCredentials = {
-  email: string
-  password: string
-}
-
-export const MOCK_ADMIN_CREDENTIALS: PatientCredentials = {
-  email: 'admin@maemais.com',
-  password: '123456',
-}
-
-export function signInPatient(credentials: PatientCredentials): { ok: boolean; error?: string } {
-  const email = credentials.email.trim().toLowerCase()
-  const password = credentials.password
-
-  if (!email || !password) return { ok: false, error: 'Preencha e-mail e senha.' }
-
-  if (email === MOCK_ADMIN_CREDENTIALS.email && password === MOCK_ADMIN_CREDENTIALS.password) {
-    setSession({
-      id: 'a-001',
-      role: 'admin',
-      email,
-      name: 'Admin (mock)',
-      createdAt: Date.now(),
-    })
-    return { ok: true }
-  }
-
-  setSession({
-    id: 'p-001',
-    role: 'patient',
-    email,
-    name: 'Maria (mock)',
-    createdAt: Date.now(),
-  })
-
-  return { ok: true }
-}
-
 export function isPatient(session: Session | null) {
-  return session?.role === 'patient'
+  const r = session?.role?.toLowerCase()
+  return r === 'patient'
 }

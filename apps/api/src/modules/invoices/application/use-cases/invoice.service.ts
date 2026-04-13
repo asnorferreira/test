@@ -4,6 +4,7 @@ import {
   InternalServerErrorException,
   BadRequestException,
 } from "@nestjs/common";
+import PDFDocument from "pdfkit";
 import { InvoiceRepository } from "../../domain/repositories/invoice.repository";
 import { Invoice } from "../../domain/entities/invoice.entity";
 import { StoragePort } from "@/core/ports/storage.port";
@@ -12,13 +13,28 @@ import { InvoiceType } from "@maemais/shared-types";
 @Injectable()
 export class InvoiceService {
   private readonly logger = new Logger(InvoiceService.name);
-
   private readonly CUSTO_FARMACIA_CENTS = 5000;
 
   constructor(
     private readonly repo: InvoiceRepository,
     private readonly storage: StoragePort,
   ) {}
+
+  private async generateRealPdfBuffer(content: string): Promise<Buffer> {
+    return new Promise((resolve, reject) => {
+      const doc = new PDFDocument();
+      const buffers: Buffer[] = [];
+
+      doc.on("data", buffers.push.bind(buffers));
+      doc.on("end", () => resolve(Buffer.concat(buffers)));
+      doc.on("error", reject);
+
+      doc.fontSize(16).text("Documento Fiscal MãeMais", { align: "center" });
+      doc.moveDown();
+      doc.fontSize(12).text(content);
+      doc.end();
+    });
+  }
 
   async generateSplitInvoices(
     orderId: string,
@@ -40,14 +56,14 @@ export class InvoiceService {
     const farmaciaAmount = this.CUSTO_FARMACIA_CENTS;
     const intermediacaoAmount = totalAmountCents - farmaciaAmount;
 
-    const pdfFarmaciaBuffer = Buffer.from(
-      `NOTA FISCAL PRODUTO (FARMÁCIA)\nValor: R$ ${farmaciaAmount / 100}\nPedido: ${orderId}`,
-    );
-    const pdfPlataformaBuffer = Buffer.from(
-      `NOTA FISCAL INTERMEDIAÇÃO (PLATAFORMA)\nValor: R$ ${intermediacaoAmount / 100}\nPedido: ${orderId}`,
-    );
-
     try {
+      const pdfFarmaciaBuffer = await this.generateRealPdfBuffer(
+        `NOTA FISCAL PRODUTO (FARMÁCIA)\nValor: R$ ${(farmaciaAmount / 100).toFixed(2)}\nPedido: ${orderId}`,
+      );
+      const pdfPlataformaBuffer = await this.generateRealPdfBuffer(
+        `NOTA FISCAL INTERMEDIAÇÃO (PLATAFORMA)\nValor: R$ ${(intermediacaoAmount / 100).toFixed(2)}\nPedido: ${orderId}`,
+      );
+
       const [pathFarmacia, pathPlataforma] = await Promise.all([
         this.storage.uploadPdf(
           `invoices/farmacia_${orderId}.pdf`,
@@ -73,8 +89,7 @@ export class InvoiceService {
         documentUrl: pathPlataforma,
       });
 
-      await this.repo.create(nfFarmacia);
-      await this.repo.create(nfPlataforma);
+      await this.repo.createMany([nfFarmacia, nfPlataforma]);
 
       this.logger.log(
         `NFs geradas e salvas com sucesso para o pedido ${orderId}`,
@@ -92,20 +107,18 @@ export class InvoiceService {
 
   async getInvoicesByOrder(orderId: string) {
     const invoices = await this.repo.findByOrderId(orderId);
-
     const results = await Promise.all(
       invoices.map(async (inv) => {
-        const publicUrl = await this.storage.getFileUrl(inv.props.documentUrl);
+        const secureUrl = await this.storage.getFileUrl(inv.props.documentUrl);
         return {
           id: inv.id,
           type: inv.props.type,
           amount: inv.props.amount,
-          url: publicUrl,
+          url: secureUrl,
           issuedAt: inv.props.issuedAt,
         };
       }),
     );
-
     return results;
   }
 }

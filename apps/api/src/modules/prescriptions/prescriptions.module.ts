@@ -12,6 +12,6 @@ import { MedicalCaseReviewedListener } from "./application/listeners/medical-cas
     MedicalCaseReviewedListener,
     { provide: PrescriptionRepository, useClass: PrismaPrescriptionRepository },
   ],
-  exports: [PrescriptionService],
+  exports: [PrescriptionService, PrescriptionRepository],
 })
 export class PrescriptionsModule {}
